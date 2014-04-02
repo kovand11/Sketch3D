@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+    
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+        android:id="@+id/action_accept"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_accept"
+        android:icon="@drawable/ic_action_accept"/>
+    
+    <item
+        android:id="@+id/action_cancel"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_cancel"
+        android:icon="@drawable/ic_action_cancel"/>
+
+    <item
+        android:id="@+id/action_undo"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_undo"
+        android:icon="@drawable/ic_action_undo"/>
+    
+    <item
+        android:id="@+id/action_save"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_save"
+        android:icon="@drawable/ic_action_save" />
+    
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_settings"
+        android:icon="@drawable/ic_action_settings" />
+    
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_about"
+        android:icon="@drawable/ic_action_about" />
+    
+    <item
+        android:id="@+id/action_rotation_switch"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_settings"
+        android:actionLayout="@layout/switch_layout" />
+    
+
+
+</menu>
