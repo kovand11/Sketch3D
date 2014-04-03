@@ -1,2 +1,3 @@
 Todo:
-make subpolyline reverse safe
+
+change to symmetric coordinates

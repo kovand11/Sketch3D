@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import android.util.Log;
 
-import hu.kovand.sketch3d.ModelScreen;
+import hu.kovand.sketch3d.graphics.ModelScreen;
 import hu.kovand.sketch3d.utility.MyMath;
 
 

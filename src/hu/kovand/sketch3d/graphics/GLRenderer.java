@@ -1,6 +1,9 @@
-package hu.kovand.sketch3d;
+package hu.kovand.sketch3d.graphics;
 
+import hu.kovand.sketch3d.R;
+import hu.kovand.sketch3d.utility.Constants;
 import hu.kovand.sketch3d.utility.ShaderHelper;
+import hu.kovand.sketch3d.utility.StrokeHandler;
 import hu.kovand.sketch3d.utility.TextResourceReader;
 
 
@@ -65,7 +68,7 @@ public class GLRenderer implements Renderer {
 
     
 
- 	GLRenderer(Context context)
+ 	public GLRenderer(Context context)
 	{
 		this.context = context;	        
 	}
@@ -100,9 +103,10 @@ public class GLRenderer implements Renderer {
 		this.width = width;
 		this.height = height;
 		
-		Matrix.perspectiveM(projectionMatrix, 0, 45.0f, (1.0f*width)/height, GlobalConstants.MODEL_FRONT_Z, GlobalConstants.MODEL_BACK_Z);
-		Matrix.setLookAtM(viewMatrix, 0, width/2, height/2, (float)(height/(2*Math.tan(Math.toRadians(45.0/2)))), width/2, height/2, 0f, 0f, height/2, 0.0f);
+		Matrix.perspectiveM(projectionMatrix, 0, 45.0f, (1.0f*width)/height, Constants.MODEL_FRONT_Z, Constants.MODEL_BACK_Z);
+		Matrix.setLookAtM(viewMatrix, 0, 0, 0, (float)(height/(2*Math.tan(Math.toRadians(45.0/2)))), 0, 0, 0f, 0f, height/2, 0.0f);
 		Matrix.multiplyMM(MVPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+		
 		
 		
 
@@ -111,9 +115,7 @@ public class GLRenderer implements Renderer {
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		
-		Matrix.perspectiveM(projectionMatrix, 0, 45.0f, (1.0f*width)/height, GlobalConstants.MODEL_FRONT_Z, GlobalConstants.MODEL_BACK_Z);
-		Matrix.setLookAtM(viewMatrix, 0, width/2, height/2, (float)(height/(2*Math.tan(Math.toRadians(45.0/2)))), width/2, height/2, 0f, 0f, height/2, 0.0f);
-		Matrix.multiplyMM(MVPMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+		
 		  
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT );

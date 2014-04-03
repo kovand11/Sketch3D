@@ -1,4 +1,4 @@
-package hu.kovand.sketch3d;
+package hu.kovand.sketch3d.utility;
 
 import java.nio.FloatBuffer;
 
@@ -7,6 +7,7 @@ import android.view.View;
 
 import hu.kovand.sketch3d.geometry.Point3D;
 import hu.kovand.sketch3d.geometry.PolyLine;
+import hu.kovand.sketch3d.graphics.GLRenderer;
 
 
 
@@ -45,7 +46,7 @@ public class StrokeHandler {
 	public boolean onTouchEvent(View v,MotionEvent event)
 	{
 		int action = event.getAction();
-		Point3D p = new Point3D(event.getX(),v.getHeight()-event.getY(), GlobalConstants.Z_FOR_2D, 0, 0);		
+		Point3D p = new Point3D(event.getX()-v.getWidth()/2,v.getHeight()/2-event.getY(), Constants.Z_FOR_2D);		
 		switch (action) {
 		case MotionEvent.ACTION_DOWN:
 		case MotionEvent.ACTION_MOVE:
@@ -73,7 +74,7 @@ public class StrokeHandler {
 		listener = l;		
 	}
 	
-	interface onStrokeListener
+	public interface onStrokeListener
 	{
 		boolean onStroke(PolyLine stroke);	
 	}

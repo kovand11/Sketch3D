@@ -56,7 +56,7 @@ public class BSpline {
 		{
 			Point3D cp = new Point3D((float)result[n+p+2+3*i],
 					(float)result[n+p+2+3*i+1],
-					(float)result[n+p+2+3*i+2],0,0L);
+					(float)result[n+p+2+3*i+2]);
 			
 			controlPoints.add(cp);
 			
@@ -89,7 +89,7 @@ public class BSpline {
 		
 		for (int i=0;i<points;i++)
 		{
-			Point3D point = new Point3D((float)result[3*i], (float)result[3*i+1], (float)result[3*i+2], 0, 0L);
+			Point3D point = new Point3D((float)result[3*i], (float)result[3*i+1], (float)result[3*i+2]);
 			result_line.append(point);
 		}		
 		

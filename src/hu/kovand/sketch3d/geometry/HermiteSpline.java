@@ -1,7 +1,6 @@
 package hu.kovand.sketch3d.geometry;
 
 import android.util.Log;
-import hu.kovand.sketch3d.utility.MyMath;
 
 public class HermiteSpline {
 	
@@ -48,7 +47,7 @@ public class HermiteSpline {
 			
 			Log.d("result", Float.toString(x) + " " +Float.toString(y) + " " +Float.toString(z));
 			
-			result.append(new Point3D(x, y, z, 0, 0));
+			result.append(new Point3D(x, y, z));
 		}
 		
 		return result;

@@ -1,4 +1,4 @@
-package hu.kovand.sketch3d;
+package hu.kovand.sketch3d.graphics;
 
 import hu.kovand.sketch3d.geometry.BSpline;
 import hu.kovand.sketch3d.geometry.HermiteSpline;
@@ -40,31 +40,31 @@ public class ModelScreen {
 	int lastAddedType = TYPE_NONE;
 	
 	
-	ModelScreen()
+	public ModelScreen()
 	{
 		pointSet = new PointSet(10000);
 		hybridCurveList = new ArrayList<HybridCurve>();
 		bsplineList = new ArrayList<BSpline>();		
 	}
 	
-	void clear()
+	public void clear()
 	{
 		pointSet.clear();
 		hybridCurveList.clear();
 		bsplineList.clear();	
 	}
 	
-	void clearPoints()
+	public void clearPoints()
 	{
 		pointSet.clear();	
 	}
 	
-	void clearHybridCurves()
+	public void clearHybridCurves()
 	{
 		hybridCurveList.clear();	
 	}
 	
-	void clearBSplines()
+	public void clearBSplines()
 	{
 		bsplineList.clear();	
 	}
@@ -84,7 +84,7 @@ public class ModelScreen {
 			int closest = MyMath.findClosest(endpoints, p);
 			if (Point3D.distance(endpoints.get(closest), p) < POINT_TO_CURVE_MERGE_THRESH)
 			{
-				p = new Point3D(endpoints.get(closest).getX(), endpoints.get(closest).getY(), endpoints.get(closest).getZ(), p.getWeight(), p.getTime());
+				p = new Point3D(endpoints.get(closest).getX(), endpoints.get(closest).getY(), endpoints.get(closest).getZ());
 			}
 		}
 		

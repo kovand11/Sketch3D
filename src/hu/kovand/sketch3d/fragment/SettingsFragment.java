@@ -1,5 +1,7 @@
-package hu.kovand.sketch3d;
+package hu.kovand.sketch3d.fragment;
 
+import hu.kovand.sketch3d.R;
+import hu.kovand.sketch3d.R.xml;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 

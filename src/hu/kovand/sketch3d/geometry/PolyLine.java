@@ -1,6 +1,6 @@
 package hu.kovand.sketch3d.geometry;
 
-import hu.kovand.sketch3d.GLRenderer;
+import hu.kovand.sketch3d.graphics.GLRenderer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

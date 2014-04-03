@@ -1,5 +1,6 @@
-package hu.kovand.sketch3d;
+package hu.kovand.sketch3d.activity;
 
+import hu.kovand.sketch3d.fragment.SettingsFragment;
 import android.app.Activity;
 import android.os.Bundle;
 

@@ -59,7 +59,7 @@ public class MyMath {
 		float dy = p2.getY() - p1.getY(); 
 		float dz = p2.getZ() - p1.getZ();
 		
-		return new Point3D(dx/l, dy/l, dz/l, 0, 0);
+		return new Point3D(dx/l, dy/l, dz/l);
 				
 	}
 	

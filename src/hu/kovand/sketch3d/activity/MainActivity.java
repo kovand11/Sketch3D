@@ -1,8 +1,17 @@
-package hu.kovand.sketch3d;
+package hu.kovand.sketch3d.activity;
 
+import hu.kovand.sketch3d.R;
+import hu.kovand.sketch3d.R.id;
+import hu.kovand.sketch3d.R.menu;
 import hu.kovand.sketch3d.geometry.HybridCurve;
 import hu.kovand.sketch3d.geometry.Point3D;
 import hu.kovand.sketch3d.geometry.PolyLine;
+import hu.kovand.sketch3d.graphics.GLRenderer;
+import hu.kovand.sketch3d.graphics.Model3D;
+import hu.kovand.sketch3d.graphics.ModelScreen;
+import hu.kovand.sketch3d.utility.Constants;
+import hu.kovand.sketch3d.utility.StrokeHandler;
+import hu.kovand.sketch3d.utility.StrokeHandler.onStrokeListener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -293,7 +302,7 @@ public class MainActivity extends Activity {
 		@Override
 		public boolean onDoubleTap(MotionEvent e) {
 			Toast.makeText(context, "Pen: Doubletap",Toast.LENGTH_SHORT).show();
-			Point3D p = new Point3D(e.getX(),glSurfaceView.getHeight() -  e.getY(), GlobalConstants.Z_FOR_2D, 0, 0);
+			Point3D p = new Point3D(e.getX()-glSurfaceView.getWidth()/2,glSurfaceView.getHeight()/2 -  e.getY(), Constants.Z_FOR_2D);
 			modelScreen.addPoint(p);
 			return super.onDoubleTap(e);
 		}

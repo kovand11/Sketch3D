@@ -1,7 +1,7 @@
 package hu.kovand.sketch3d.geometry;
 
-import hu.kovand.sketch3d.GLRenderer;
-import hu.kovand.sketch3d.GlobalConstants;
+import hu.kovand.sketch3d.graphics.GLRenderer;
+import hu.kovand.sketch3d.utility.Constants;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -41,8 +41,8 @@ public class PointSet {
 		
 		float x = p.getX();
 		float y = p.getY();
-		float z = p.getZ()-GlobalConstants.POINT_SQUARE_RADIUS;		
-		float r = GlobalConstants.POINT_SQUARE_RADIUS;
+		float z = p.getZ()-Constants.POINT_SQUARE_RADIUS;		
+		float r = Constants.POINT_SQUARE_RADIUS;
 		
 		Log.d("points", p.toString());
 		
