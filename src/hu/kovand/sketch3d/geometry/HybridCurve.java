@@ -1,4 +1,4 @@
-package hu.kovand.sketch3d.geometry;
+/*package hu.kovand.sketch3d.geometry;
 
 import java.util.ArrayList;
 
@@ -11,7 +11,7 @@ import hu.kovand.sketch3d.utility.MyMath;
 //both polyline and bspline representation
 public class HybridCurve {
 	
-	public PolyLine polyLine;
+	public PolyLineDeprecated polyLine;
 	public BSpline bspline;
 	
 	public static final int POS_START = 0;
@@ -20,7 +20,7 @@ public class HybridCurve {
 	public static ModelScreen testoutput; 
 
 	//polyline -> bspline (store) -> polyline (store)
-	public HybridCurve(PolyLine p,int p_param,int n_param,int points) {
+	public HybridCurve(PolyLineDeprecated p,int p_param,int n_param,int points) {
 		bspline = new BSpline();
 		bspline.approximate(p,p_param,n_param);
 		polyLine = bspline.evaluate(points);
@@ -34,12 +34,12 @@ public class HybridCurve {
 	
 	public static HybridCurve extend(HybridCurve curve1,int pos1,HybridCurve curve2,int pos2)
 	{
-		PolyLine result = new PolyLine(curve1.polyLine.size()+curve2.polyLine.size()+50);
+		PolyLineDeprecated result = new PolyLineDeprecated(curve1.polyLine.size()+curve2.polyLine.size()+50);
 		
 		if (pos1 == POS_END && pos2 == POS_START)
 		{
-			PolyLine p1 = curve1.polyLine;
-			PolyLine p2 = curve2.polyLine;
+			PolyLineDeprecated p1 = curve1.polyLine;
+			PolyLineDeprecated p2 = curve2.polyLine;
 			int mapped1to2 = MyMath.findClosest(p2.getPoints(), p1.get(p1.size()-1));
 			int mapped2to1 = MyMath.findClosest(p1.getPoints(), p2.get(0));
 					
@@ -69,7 +69,7 @@ public class HybridCurve {
 			tan2 = Point3D.multiply(tan2, -dist2);			
 			
 			HermiteSpline hspline =  new HermiteSpline(p1.get(cut1), tan1, p2.get(cut2), tan2);			
-			PolyLine eval_hspline = hspline.evaluate(50);
+			PolyLineDeprecated eval_hspline = hspline.evaluate(50);
 			
 			for (int i=0;i<cut1;i++)
 			{
@@ -90,11 +90,11 @@ public class HybridCurve {
 		return new HybridCurve(result,3,curve1.bspline.n+curve2.bspline.n,curve1.polyLine.size()+curve2.polyLine.size());
 	}
 	
-	public static HybridCurve merge(HybridCurve curve1,PolyLine curve2)
+	public static HybridCurve merge(HybridCurve curve1,PolyLineDeprecated curve2)
 	{
 		
 		
-		PolyLine result = new PolyLine(curve1.polyLine.size()+curve2.size());
+		PolyLineDeprecated result = new PolyLineDeprecated(curve1.polyLine.size()+curve2.size());
 		
 		//map all curve2 points to curve1
 		ArrayList<Integer> mapped_indexes = new ArrayList<Integer>();
@@ -151,4 +151,4 @@ public class HybridCurve {
 	
 	
 
-}
+}*/

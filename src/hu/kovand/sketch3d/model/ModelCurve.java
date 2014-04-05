@@ -1,7 +1,7 @@
 package hu.kovand.sketch3d.model;
 
-import hu.kovand.sketch3d.geometry.HybridCurve;
 import hu.kovand.sketch3d.geometry.Point3D;
+import hu.kovand.sketch3d.geometry.PolyLine;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public class ModelCurve {
 	
 	
 	//Evaluated
-	HybridCurve evalCurve;
+	PolyLine evalCurve;
 
 	public ModelCurve(ModelSurface parent,ArrayList<ModelSurfaceAddress> controlPoints,ArrayList<Float> knots) {
 		this.parent = parent;
@@ -33,7 +33,7 @@ public class ModelCurve {
 		//TODO
 	}
 	
-	public HybridCurve getEval()
+	public PolyLine getEval()
 	{
 		return evalCurve;
 	}
@@ -41,7 +41,7 @@ public class ModelCurve {
 	public Point3D evaluate(float t)
 	{
 		//TODO calc u,w based on t
-		return parent.evaluate(0.0f, 0.0f);
+		return parent.evaluate(new ModelSurfaceAddress(0.0f, 0.0f));
 	}
 	
 	

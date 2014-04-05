@@ -12,6 +12,9 @@ public class CurveLib {
 	//return = {px,py,pz)
 	public native static double[] evaluate(double[] knots,double[] cpx,double[] cpy,double[] cpz,float t);
 	
+	//return = {u,dist,x,y,z}	
+	public native static double[] projectPoint(double[] knots, double[] cpx, double[] cpy, double[] cpz,double x,double y,double z, int resolution, double distance_tol, double cosine_tol);
+	
 	
 	
 	static{

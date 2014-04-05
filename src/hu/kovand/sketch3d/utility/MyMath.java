@@ -2,12 +2,12 @@ package hu.kovand.sketch3d.utility;
 
 import java.security.PolicySpi;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.util.Log;
 
 
 import hu.kovand.sketch3d.geometry.Point3D;
-import hu.kovand.sketch3d.geometry.PolyLine;
 
 
 public class MyMath {
@@ -27,7 +27,7 @@ public class MyMath {
 		return area/2;
 	}
 	
-	public static float distanceL2(ArrayList<Point3D> p)
+	public static float length(List<Point3D> p)
 	{
 		float d = 0.0f;
 		
@@ -119,7 +119,7 @@ public class MyMath {
 				   (-256.0f*hw + 455.11111f*qw)*t*t*t*t*t*t;	
 	}
 	
-	public static ArrayList<IntersectionAddress> findIntersections(PolyLine l1,PolyLine l2)
+	public static List<IntersectionAddress> findIntersections(List<Point3D> l1,List<Point3D> l2)
 	{
 		ArrayList<IntersectionAddress> addresses = new ArrayList<IntersectionAddress>();
 		for(int i=0;i<l1.size()-1;i++)
@@ -138,8 +138,18 @@ public class MyMath {
 				float p4x = l2.get(j+1).getX();
 				float p4y = l2.get(j+1).getY();
 				
-				float t1 = (-(p3y*p4x) + p1y*(-p3x + p4x) + p1x*(p3y - p4y) + p3x*p4y)/(p2y*(p3x - p4x) + p1y*(-p3x + p4x) + (p1x - p2x)*(p3y - p4y));
-				float t2 = (p1y*(p2x - p3x) + p2y*p3x - p2x*p3y + p1x*(-p2y + p3y))/(p2y*(p3x - p4x) + p1y*(-p3x + p4x) + (p1x - p2x)*(p3y - p4y));
+				float t1 = -1.0f;
+				float t2 = -1.0f;
+				
+				try{
+				
+				t1 = (-(p3y*p4x) + p1y*(-p3x + p4x) + p1x*(p3y - p4y) + p3x*p4y)/(p2y*(p3x - p4x) + p1y*(-p3x + p4x) + (p1x - p2x)*(p3y - p4y));
+				t2 = (p1y*(p2x - p3x) + p2y*p3x - p2x*p3y + p1x*(-p2y + p3y))/(p2y*(p3x - p4x) + p1y*(-p3x + p4x) + (p1x - p2x)*(p3y - p4y));
+				}
+				catch(ArithmeticException e)
+				{
+					continue;					
+				}
 				
 				
 				if (t1>=0 && t1<1 && t2>=0 && t2<1)

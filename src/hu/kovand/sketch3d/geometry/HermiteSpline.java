@@ -21,7 +21,7 @@ public class HermiteSpline {
 	
 	public PolyLine evaluate(int points)
 	{
-		PolyLine result = new PolyLine(points);
+		PolyLine result = new PolyLine();
 		
 		Log.d("points", Float.toString(p1.getX()) + " " +Float.toString(p1.getY()) + " " +Float.toString(p1.getZ()));
 		Log.d("points", Float.toString(m1.getX()) + " " +Float.toString(m1.getY()) + " " +Float.toString(m1.getZ()));
@@ -47,7 +47,7 @@ public class HermiteSpline {
 			
 			Log.d("result", Float.toString(x) + " " +Float.toString(y) + " " +Float.toString(z));
 			
-			result.append(new Point3D(x, y, z));
+			result.add(new Point3D(x, y, z));
 		}
 		
 		return result;

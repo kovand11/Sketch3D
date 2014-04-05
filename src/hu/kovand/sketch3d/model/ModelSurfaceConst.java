@@ -13,8 +13,8 @@ public class ModelSurfaceConst extends ModelSurface {
 	}
 
 	@Override
-	public Point3D evaluate(float u, float w) {
-		Point3D offs = Point3D.add(Point3D.multiply(v1, u), Point3D.multiply(v2, w));		
+	public Point3D evaluate(ModelSurfaceAddress addr) {
+		Point3D offs = Point3D.add(Point3D.multiply(v1, addr.getU()), Point3D.multiply(v2, addr.getW()));		
 		return Point3D.add(orig, offs);
 	}
 

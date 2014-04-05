@@ -1,11 +1,11 @@
-package hu.kovand.sketch3d.graphics;
+/*package hu.kovand.sketch3d.graphics;
 
 import hu.kovand.sketch3d.geometry.BSpline;
 import hu.kovand.sketch3d.geometry.HermiteSpline;
 import hu.kovand.sketch3d.geometry.HybridCurve;
 import hu.kovand.sketch3d.geometry.Point3D;
 import hu.kovand.sketch3d.geometry.PointSet;
-import hu.kovand.sketch3d.geometry.PolyLine;
+import hu.kovand.sketch3d.geometry.PolyLineDeprecated;
 import hu.kovand.sketch3d.utility.IntersectionAddress;
 import hu.kovand.sketch3d.utility.MyMath;
 
@@ -35,7 +35,7 @@ public class ModelScreen {
 	
 	
 	PointSet pointSet;
-	ArrayList< HybridCurve > hybridCurveList;
+	//ArrayList< HybridCurve > hybridCurveList;
 	ArrayList<BSpline> bsplineList;
 	int lastAddedType = TYPE_NONE;
 	
@@ -43,7 +43,7 @@ public class ModelScreen {
 	public ModelScreen()
 	{
 		pointSet = new PointSet(10000);
-		hybridCurveList = new ArrayList<HybridCurve>();
+		//hybridCurveList = new ArrayList<HybridCurve>();
 		bsplineList = new ArrayList<BSpline>();		
 	}
 	
@@ -96,14 +96,13 @@ public class ModelScreen {
 		
 	}
 	
-	public void addHybridCurve(PolyLine pl,int merge)
+	public void addHybridCurve(PolyLineDeprecated pl,int merge)
 	{
-		Log.d("plsize", Integer.toString(pl.size()));
 		HybridCurve newHybrid = new HybridCurve(pl, 3, 10, 200);
 		HybridCurve h = null;
 		if (hybridCurveList.size()!=0)
 		{
-			ArrayList<PolyLine> cutted = new ArrayList<PolyLine>();
+			ArrayList<PolyLineDeprecated> cutted = new ArrayList<PolyLineDeprecated>();
 			ArrayList<IntersectionAddress> inters = MyMath.findIntersections(hybridCurveList.get(hybridCurveList.size()-1).polyLine, newHybrid.polyLine);
 			if (inters.size() ==0){
 				cutted.add(newHybrid.polyLine);
@@ -152,6 +151,43 @@ public class ModelScreen {
 			h = new HybridCurve(pl,3,10,200);
 		clearHybridCurves();
 		hybridCurveList.add(h);		
+		
+		/*HybridCurve newHybrid = new HybridCurve(pl, 3, 10, 500);
+		PolyLine newPoly = newHybrid.polyLine;
+		HybridCurve newToAdd = null;
+		ArrayList<Integer> curvesToRemove;
+		
+		
+		//check for points
+		if (pointSet.size()!=0)
+		{
+			int closest_to_start = MyMath.findClosest(pointSet.getPointList(), newPoly.get(0));
+			int closest_to_end = MyMath.findClosest(pointSet.getPointList(), newPoly.get(newHybrid.polyLine.size()-1));
+			float distance_to_start = Point3D.distance(pointSet.get(closest_to_start),newPoly.get(0) );
+			float distance_to_end = Point3D.distance(pointSet.get(closest_to_end),newPoly.get(newPoly.size()-1) );
+			
+			if (distance_to_start<CURVE_TO_POINT_MERGE_THRESH){
+				newPoly.getPoints().add(0, pointSet.get(closest_to_start));			
+			}
+			if (distance_to_end<CURVE_TO_POINT_MERGE_THRESH && closest_to_start != closest_to_end){
+				newPoly.getPoints().add(newPoly.getPoints().size(), pointSet.get(closest_to_start));							
+			}
+			
+		}
+		
+		
+		//foreach curve
+		for (int i=0;i<hybridCurveList.size();i++)
+		{
+			
+		}
+		////
+		
+		
+		
+		
+		
+		
 	}
 	
 	PointSet getPointSet()
@@ -183,4 +219,4 @@ public class ModelScreen {
 		}
 		return arr;
 	}
-}
+}*/

@@ -8,7 +8,7 @@ public abstract class ModelSurface {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public abstract Point3D evaluate(float u,float w);
+	public abstract Point3D evaluate(ModelSurfaceAddress addr);
 	
 	
 

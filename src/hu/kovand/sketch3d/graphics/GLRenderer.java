@@ -63,7 +63,8 @@ public class GLRenderer implements Renderer {
 
 
     StrokeHandler strokeHandler;
-    ModelScreen modelScreen;
+    //ModelScreen modelScreen;
+    //TODO ->ModelOverlay
     Model3D model3D;
 
     
@@ -145,8 +146,9 @@ public class GLRenderer implements Renderer {
 		
 		//ModelSurface.PointSet
 		//
-		vertexData = modelScreen.getPointSet().getVertexBuffer();
-		size = modelScreen.getPointSet().renderSize();		
+		//vertexData = modelScreen.getPointSet().getVertexBuffer();
+		//size = modelScreen.getPointSet().renderSize();	
+        //TODO
 		
 		coords = 3;
 		//	
@@ -158,7 +160,7 @@ public class GLRenderer implements Renderer {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, size);
         GLES20.glDisableVertexAttribArray(aPositionLocation);
         
-        
+        /* 
         //ModelSurface.HybridLines
         //       
         ArrayList<FloatBuffer> vertexDataList = modelScreen.getStoredCurvesVertexBufferList();
@@ -175,7 +177,7 @@ public class GLRenderer implements Renderer {
             GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
             GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, size);
             GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }    
+        } */   
         
         
         
@@ -195,10 +197,10 @@ public class GLRenderer implements Renderer {
 		model3D = m;
 	}
 	
-	public void setModelScreen(ModelScreen m)
+	/*public void setModelScreen(ModelScreen m)
 	{
 		modelScreen = m;		
-	}
+	}*/
 	
 	public void setStrokeHandler(StrokeHandler sh)
 	{

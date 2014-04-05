@@ -1,8 +1,9 @@
 package hu.kovand.sketch3d.geometry;
 
-import java.util.ArrayList;
+import hu.kovand.sketch3d.utility.MyMath;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BSpline {
 	public static final String TAG = "BSpline";
@@ -24,12 +25,18 @@ public class BSpline {
 
 	}
 	
+	/** approximates a given polyline, with a target error
+	 * 
+	 * @param curve		the appriximated polyline
+	 * @param p_param	degree of the	
+	 * @param n_param	n+1 contoll points
+	 */	
 	public void approximate(PolyLine curve,int p_param,int n_param)
 	{
 		p = p_param;
 		n = n_param;
 		
-		ArrayList<Point3D> points = curve.getPoints();
+		List<Point3D> points = curve.getPoints();
 		double [] px = new double[points.size()];
 		double [] py = new double[points.size()];
 		double [] pz = new double[points.size()];
@@ -63,7 +70,26 @@ public class BSpline {
 		}	
 	}
 	
-	public PolyLine evaluate(int points)
+	/** approximates a given polyline, with a target error
+	 * 
+	 * @param curve		the appriximated polyline
+	 * @param step		the step between the tried controll point count
+	 * @param error		the upper limit of error for the bspline curve from the curve
+	 */
+	public void approximateAdaptive(PolyLine curve,int step,float error)
+	{
+		float length = MyMath.length(curve.getPoints());
+		
+		
+						
+	}
+	
+	/** Evaluates the b-spline with n points
+	 * 
+	 * @param points number of points with equal u distance
+	 * @return the approximated polyline
+	 */
+	public PolyLine evaluateN(int points)
 	{
 		
 		double[] knots_arr = new double[knots.size()];
@@ -85,20 +111,75 @@ public class BSpline {
 						
 		double[] result = CurveLib.evaluateN(knots_arr, cpx, cpy, cpz, points);
 		
-		PolyLine result_line = new PolyLine(points);
+		PolyLine result_line = new PolyLine();
 		
 		for (int i=0;i<points;i++)
 		{
 			Point3D point = new Point3D((float)result[3*i], (float)result[3*i+1], (float)result[3*i+2]);
-			result_line.append(point);
+			result_line.add(point);
 		}		
 		
 		return result_line;		
 	}
 	
 	
-	public ArrayList<Point3D> getControlPoints(){
+		
+	public Point3D evaluate(float u)
+	{
+		//TODO implement
+		return null;				
+	}
+	
+	public ProjectionResult projectPoint()
+	{
+		//TODO implement
+		return null;		
+	}
+	
+	
+	
+	
+	public List<Point3D> getControlPoints(){
 		return controlPoints;
 	}
+	
+	
+	
+	
+	public List<Float> getKnots()
+	{
+		return knots;		
+	}
+	
+	
+	
+	
+	
+	public class ProjectionResult
+	{
+		private float u;
+		private Point3D point;
+		private float distance;
+		
+		public ProjectionResult(float u,Point3D p,float d) {
+			this.u = u;
+			point = p;
+			distance = d;			
+		}
+		
+		public float getU(){
+			return u;
+		}
+		
+		public Point3D getPoint(){
+			return point;
+		}
+		
+		public float getDistance(){
+			return distance;			
+		}	
+				
+	}
+	
 	
 }

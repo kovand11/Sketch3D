@@ -701,4 +701,61 @@ JNIEXPORT jdoubleArray JNICALL Java_hu_kovand_sketch3d_geometry_CurveLib_evaluat
 
 }
 
+JNIEXPORT jdoubleArray JNICALL Java_hu_kovand_sketch3d_geometry_CurveLib_projectPoint
+  (JNIEnv *env, jclass cl, jdoubleArray knots, jdoubleArray cpx, jdoubleArray cpy, jdoubleArray cpz, jdouble x, jdouble y, jdouble z, jint res, jdouble dist_tol, jdouble cos_tol)
+{
+	jsize knots_size = env->GetArrayLength(knots);
+	jsize cp_size = env->GetArrayLength(cpx);
+
+	std::vector<double> knots_vec(knots_size);
+	std::vector<double> cpx_vec(cp_size);
+	std::vector<double> cpy_vec(cp_size);
+	std::vector<double> cpz_vec(cp_size);
+
+	env->GetDoubleArrayRegion(knots,0,knots_size,&knots_vec[0]);
+	env->GetDoubleArrayRegion(cpx,0,cp_size,&cpx_vec[0]);
+	env->GetDoubleArrayRegion(cpy,0,cp_size,&cpy_vec[0]);
+	env->GetDoubleArrayRegion(cpz,0,cp_size,&cpz_vec[0]);
+
+	int n = cp_size - 1;
+	int p = knots_size - cp_size - 1;
+
+	PointVector cp_vec;
+	for (jsize i=0;i<cp_size;i++)
+	{
+		cp_vec.push_back(Point(cpx_vec[i],cpy_vec[i],cpz_vec[i]));
+	}
+
+	BSplineCurve curve;
+
+	curve.n = n;
+	curve.p = p;
+	curve.knots = knots_vec;
+	curve.cp = cp_vec;
+
+	Point point;
+	point.x = x;
+	point.y = y;
+	point.z = z;
+
+	Point proj;
+	jdouble u = 0.0;
+	jdouble dist = 0.0;
+	proj = curve.projectPoint(point, u, dist, res, dist_tol, cos_tol);
+
+	std::vector<jdouble> results;
+	results.reserve(5);
+
+	results.push_back(u);
+	results.push_back(dist);
+	results.push_back(proj.x);
+	results.push_back(proj.y);
+	results.push_back(proj.z);
+
+	jdoubleArray output = env->NewDoubleArray( results.size() );
+	env->SetDoubleArrayRegion(output,0, results.size(), &results[0] );
+	return output;
+
+}
+
 

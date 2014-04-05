@@ -31,6 +31,14 @@ JNIEXPORT jdoubleArray JNICALL Java_hu_kovand_sketch3d_geometry_CurveLib_evaluat
 JNIEXPORT jdoubleArray JNICALL Java_hu_kovand_sketch3d_geometry_CurveLib_evaluate
   (JNIEnv *, jclass, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray, jfloat);
 
+/*
+ * Class:     hu_kovand_sketch3d_geometry_CurveLib
+ * Method:    projectPoint
+ * Signature: ([D[D[D[DDDDIDD)[D
+ */
+JNIEXPORT jdoubleArray JNICALL Java_hu_kovand_sketch3d_geometry_CurveLib_projectPoint
+  (JNIEnv *, jclass, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray, jdouble, jdouble, jdouble, jint, jdouble, jdouble);
+
 #ifdef __cplusplus
 }
 #endif

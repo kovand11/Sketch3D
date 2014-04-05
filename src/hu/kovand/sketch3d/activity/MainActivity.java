@@ -1,17 +1,12 @@
 package hu.kovand.sketch3d.activity;
 
 import hu.kovand.sketch3d.R;
-import hu.kovand.sketch3d.R.id;
-import hu.kovand.sketch3d.R.menu;
-import hu.kovand.sketch3d.geometry.HybridCurve;
 import hu.kovand.sketch3d.geometry.Point3D;
 import hu.kovand.sketch3d.geometry.PolyLine;
 import hu.kovand.sketch3d.graphics.GLRenderer;
 import hu.kovand.sketch3d.graphics.Model3D;
-import hu.kovand.sketch3d.graphics.ModelScreen;
 import hu.kovand.sketch3d.utility.Constants;
 import hu.kovand.sketch3d.utility.StrokeHandler;
-import hu.kovand.sketch3d.utility.StrokeHandler.onStrokeListener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -19,18 +14,12 @@ import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.text.style.StrikethroughSpan;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {	
@@ -43,7 +32,8 @@ public class MainActivity extends Activity {
 	private ConfigurationInfo configurationInfo;
 	private boolean supportsEs2;	
 	GLRenderer renderer;		
-	ModelScreen modelScreen;
+	//ModelScreen modelScreen;
+	//TODO
 	Model3D model3D;	
 	private GestureDetector fingerDetector;
 	private GestureDetector penDetector;
@@ -56,7 +46,6 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 			
 		super.onCreate(savedInstanceState);
-		
 		
 		context = getApplicationContext();	
 		
@@ -85,7 +74,7 @@ public class MainActivity extends Activity {
 		
 
 		
-		modelScreen = new ModelScreen();
+		//modelScreen = new ModelScreen();
 		model3D = new Model3D();
 		
 		strokeHandler = new StrokeHandler();
@@ -94,20 +83,20 @@ public class MainActivity extends Activity {
 		
 		renderer.setModel3D(model3D);
 		renderer.setStrokeHandler(strokeHandler);
-		renderer.setModelScreen(modelScreen);
+		//renderer.setModelScreen(modelScreen);
 		
 			
 		
 		fingerDetector = new GestureDetector(context,new fingerGestureListener());
 		penDetector = new GestureDetector(context,new PenGestureListener());
+		fingerScaleGestureDetector = new ScaleGestureDetector(context,fingerScaleGestureListener);
 		
 		logText = new String();
 		
 		
 		//
 		//testonly
-		
-		HybridCurve.testoutput = modelScreen;		
+			
 		
 	}
 	
@@ -127,12 +116,6 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-	    super.onCreateContextMenu(menu, v, menuInfo);
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.context_menu, menu);
-	}
 	
 	
 	
@@ -140,7 +123,6 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
@@ -155,7 +137,7 @@ public class MainActivity extends Activity {
 			break;
 			
 		case R.id.action_cancel:
-			modelScreen.clear();
+			//modelScreen.clear();
 			break;
 			
 		case R.id.action_undo:
@@ -165,7 +147,7 @@ public class MainActivity extends Activity {
 			break;
 			
 		case R.id.action_settings:
-			openSettings();
+			openSettingsActivity();
 			break;
 			
 		default:
@@ -180,13 +162,19 @@ public class MainActivity extends Activity {
 	//
 	//procedures
 	
-	void openSettings()
+	
+	
+	void openSettingsActivity()
 	{
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);		
 	}
 	
-
+	void openLogActivity()
+	{
+		//TODO unimplemented
+				
+	}
 	
 	
 
@@ -230,20 +218,19 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector) {
-			// TODO Auto-generated method stub
-			
+			//GESTURE finger scale-end			
 		}
 		
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector) {
-			// TODO Auto-generated method stub
-			return false;
+			//GESTURE finger scale-begin
+			return true;
 		}
 		
 		@Override
 		public boolean onScale(ScaleGestureDetector detector) {
-			// TODO Auto-generated method stub
-			return false;
+			//GESTURE finger onscale
+			return true;
 		}
 	};
 	
@@ -251,7 +238,8 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public boolean onStroke(PolyLine stroke) {
-			modelScreen.addHybridCurve(stroke, ModelScreen.MERGE_DISABLED);
+			//GESTURE pen stroke
+			//modelScreen.addHybridCurve(stroke, ModelScreen.MERGE_DISABLED);
 			return true;
 		}
 	};
@@ -303,7 +291,7 @@ public class MainActivity extends Activity {
 		public boolean onDoubleTap(MotionEvent e) {
 			Toast.makeText(context, "Pen: Doubletap",Toast.LENGTH_SHORT).show();
 			Point3D p = new Point3D(e.getX()-glSurfaceView.getWidth()/2,glSurfaceView.getHeight()/2 -  e.getY(), Constants.Z_FOR_2D);
-			modelScreen.addPoint(p);
+			//modelScreen.addPoint(p);
 			return super.onDoubleTap(e);
 		}
 		
