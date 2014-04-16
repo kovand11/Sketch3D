@@ -4,13 +4,13 @@ import android.util.Log;
 
 public class HermiteSpline {
 	
-	Point3D p1;
-	Point3D m1;
-	Point3D p2;
-	Point3D m2;
+	Vec3 p1;
+	Vec3 m1;
+	Vec3 p2;
+	Vec3 m2;
 	
 
-	public HermiteSpline(Point3D p1,Point3D m1,Point3D p2,Point3D m2) {
+	public HermiteSpline(Vec3 p1,Vec3 m1,Vec3 p2,Vec3 m2) {
 		this.p1 = p1;
 		this.m1 = m1;
 		this.p2 = p2;
@@ -47,7 +47,7 @@ public class HermiteSpline {
 			
 			Log.d("result", Float.toString(x) + " " +Float.toString(y) + " " +Float.toString(z));
 			
-			result.add(new Point3D(x, y, z));
+			result.add(new Vec3(x, y, z));
 		}
 		
 		return result;

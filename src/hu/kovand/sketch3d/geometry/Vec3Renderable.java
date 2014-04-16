@@ -2,9 +2,11 @@ package hu.kovand.sketch3d.geometry;
 
 import hu.kovand.sketch3d.utility.Constants;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class Point3DRenderable extends Point3D {
+public class Vec3Renderable extends Vec3 {
 	
 	public static final int COORDS = 3;
 	public static final int BYTES_PER_FLOAT = 4;
@@ -12,10 +14,31 @@ public class Point3DRenderable extends Point3D {
 	
 	private FloatBuffer vertexBuffer;
 
-	public Point3DRenderable(float x, float y, float z) {
-		super(x, y, z);		
-		float r = Constants.POINT_SQUARE_RADIUS;
+	public Vec3Renderable(float[] v) {
+		super(v);		
+		generateBuffer(v[0], v[1], v[2], Constants.POINT_SQUARE_RADIUS);
 		
+	}
+	
+	public Vec3Renderable(float x,float y,float z)
+	{
+		super(x,y,z);
+		generateBuffer(x, y, z, Constants.POINT_SQUARE_RADIUS);
+	}
+	
+	public Vec3Renderable(Vec3 v)
+	{
+		super(v.getX(), v.getY(), v.getZ());
+		generateBuffer(v.getX(), v.getY(), v.getZ(), Constants.POINT_SQUARE_RADIUS);
+		
+	}
+	
+	private void generateBuffer(float x,float y,float z,float r)
+	{
+		ByteBuffer bb = ByteBuffer.allocateDirect(COORDS*BYTES_PER_FLOAT*VERTEX_PER_POINT);
+		bb.order(ByteOrder.nativeOrder());
+		vertexBuffer = bb.asFloatBuffer();
+		vertexBuffer.position(0);
 		
 		//front
 		vertexBuffer.put(18*0+0,x+r);		vertexBuffer.put(18*0+1,y+r); 		vertexBuffer.put(18*0+2,z+r);		
@@ -65,5 +88,9 @@ public class Point3DRenderable extends Point3D {
 		vertexBuffer.put(18*5+12,x-r);		vertexBuffer.put(18*5+13,y+r);		vertexBuffer.put(18*5+14,z-r);		
 		vertexBuffer.put(18*5+15,x+r);		vertexBuffer.put(18*5+16,y+r);		vertexBuffer.put(18*5+17,z-r);
 	}
-
+	
+	public FloatBuffer getVertexBuffer()
+	{
+		return vertexBuffer;
+	}
 }

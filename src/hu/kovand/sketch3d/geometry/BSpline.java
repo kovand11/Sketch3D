@@ -1,6 +1,5 @@
 package hu.kovand.sketch3d.geometry;
 
-import hu.kovand.sketch3d.utility.MyMath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,21 +7,30 @@ import java.util.List;
 public class BSpline {
 	public static final String TAG = "BSpline";
 	
-	protected ArrayList<Float> knots;
-	protected ArrayList<Point3D> controlPoints;
-	protected boolean isValid;
+	protected List<Float> knots;
+	protected List<Vec3> controlPoints;
 	protected int p;
 	protected int n;
 	
 	
+	/** creates an empty bspline
+	 */	
 	public BSpline()
 	{
 		knots = new ArrayList<Float>();
-		controlPoints =new ArrayList<Point3D>();
+		controlPoints =new ArrayList<Vec3>();
 		p = 0;
 		n = 0;
-		isValid = false; 
 
+	}
+	/** construct with all data defined
+	 */	
+	public BSpline(List<Float> knots,List<Vec3> controlPoints,int p,int n)
+	{
+		this.knots = knots;
+		this.controlPoints = controlPoints;
+		this.p = p;
+		this.n = n;		
 	}
 	
 	/** approximates a given polyline, with a target error
@@ -36,7 +44,7 @@ public class BSpline {
 		p = p_param;
 		n = n_param;
 		
-		List<Point3D> points = curve.getPoints();
+		List<Vec3> points = curve.getPoints();
 		double [] px = new double[points.size()];
 		double [] py = new double[points.size()];
 		double [] pz = new double[points.size()];
@@ -61,7 +69,7 @@ public class BSpline {
 		controlPoints.clear();
 		for (int i=0;i<(n+1);i++)
 		{
-			Point3D cp = new Point3D((float)result[n+p+2+3*i],
+			Vec3 cp = new Vec3((float)result[n+p+2+3*i],
 					(float)result[n+p+2+3*i+1],
 					(float)result[n+p+2+3*i+2]);
 			
@@ -74,11 +82,11 @@ public class BSpline {
 	 * 
 	 * @param curve		the appriximated polyline
 	 * @param step		the step between the tried controll point count
-	 * @param error		the upper limit of error for the bspline curve from the curve
+	 * @param error		the upper limit of error for the bspline curve from the original curve
 	 */
 	public void approximateAdaptive(PolyLine curve,int step,float error)
 	{
-		float length = MyMath.length(curve.getPoints());
+		//float length = MyMath.length(curve.getPoints());
 		
 		
 						
@@ -115,7 +123,7 @@ public class BSpline {
 		
 		for (int i=0;i<points;i++)
 		{
-			Point3D point = new Point3D((float)result[3*i], (float)result[3*i+1], (float)result[3*i+2]);
+			Vec3 point = new Vec3((float)result[3*i], (float)result[3*i+1], (float)result[3*i+2]);
 			result_line.add(point);
 		}		
 		
@@ -124,22 +132,61 @@ public class BSpline {
 	
 	
 		
-	public Point3D evaluate(float u)
+	public Vec3 evaluate(float u)
 	{
-		//TODO implement
-		return null;				
+		double[] knots_arr = new double[knots.size()];
+		for (int i=0;i<knots.size();i++)
+		{
+			knots_arr[i]=(double)knots.get(i); 			
+		}
+		
+		double[] cpx = new double[controlPoints.size()];
+		double[] cpy = new double[controlPoints.size()];
+		double[] cpz = new double[controlPoints.size()];
+		//
+		for (int i=0;i<controlPoints.size();i++)
+		{
+			cpx[i] = (double)controlPoints.get(i).getX();
+			cpy[i] = (double)controlPoints.get(i).getY();
+			cpz[i] = (double)controlPoints.get(i).getZ();
+		}
+		
+		double[] result = CurveLib.evaluate(knots_arr, cpx, cpy, cpz, u);
+		
+		return new Vec3((float)result[0],(float) result[1], (float)result[2]);			
 	}
 	
-	public ProjectionResult projectPoint()
+	public ProjectionResult projectPoint(Vec3 p,int resolution,float dist_tol,float cos_tol)
 	{
-		//TODO implement
+		double[] knots_arr = new double[knots.size()];
+		for (int i=0;i<knots.size();i++)
+		{
+			knots_arr[i]=(double)knots.get(i); 			
+		}
+		
+		double[] cpx = new double[controlPoints.size()];
+		double[] cpy = new double[controlPoints.size()];
+		double[] cpz = new double[controlPoints.size()];
+		//
+		for (int i=0;i<controlPoints.size();i++)
+		{
+			cpx[i] = (double)controlPoints.get(i).getX();
+			cpy[i] = (double)controlPoints.get(i).getY();
+			cpz[i] = (double)controlPoints.get(i).getZ();
+		}
+		
+		double[] result = CurveLib.projectPoint(knots_arr, cpx, cpy, cpz, p.getX(), p.getY(), p.getZ() , resolution, dist_tol, cos_tol);
+		
+		
+		//TODO
+		
 		return null;		
 	}
 	
 	
 	
 	
-	public List<Point3D> getControlPoints(){
+	public List<Vec3> getControlPoints(){
 		return controlPoints;
 	}
 	
@@ -151,6 +198,17 @@ public class BSpline {
 		return knots;		
 	}
 	
+	public int getP()
+	{
+		return p;
+		
+	}
+	
+	public int getN()
+	{
+		return n;		
+	}
+	
 	
 	
 	
@@ -158,10 +216,10 @@ public class BSpline {
 	public class ProjectionResult
 	{
 		private float u;
-		private Point3D point;
+		private Vec3 point;
 		private float distance;
 		
-		public ProjectionResult(float u,Point3D p,float d) {
+		public ProjectionResult(float u,Vec3 p,float d) {
 			this.u = u;
 			point = p;
 			distance = d;			
@@ -171,7 +229,7 @@ public class BSpline {
 			return u;
 		}
 		
-		public Point3D getPoint(){
+		public Vec3 getPoint(){
 			return point;
 		}
 		

@@ -13,6 +13,8 @@ public class PolyLineRenderable extends PolyLine {
 	private FloatBuffer vertexBuffer;
 	private int bufferSize;
 	private int bufferCapacity;
+	
+	boolean visible;
 
 	public PolyLineRenderable(int reserve) {
 		super();
@@ -24,7 +26,7 @@ public class PolyLineRenderable extends PolyLine {
 		vertexBuffer.position(0);
 	}
 
-	public PolyLineRenderable(List<Point3D> ps) {
+	public PolyLineRenderable(List<Vec3> ps) {
 		super(ps);
 		bufferSize = ps.size();
 		bufferCapacity = ps.size();
@@ -33,11 +35,22 @@ public class PolyLineRenderable extends PolyLine {
 		vertexBuffer = bb.asFloatBuffer();
 		vertexBuffer.position(0);
 		
-		//TODO add the poinnts
+		
+		for (int i=0;i<ps.size();i++)
+		{
+			vertexBuffer.put(3*i+0,ps.get(i).getX());
+			vertexBuffer.put(3*i+1,ps.get(i).getY());
+			vertexBuffer.put(3*i+2,ps.get(i).getZ());
+		}
+	}
+	
+	public PolyLineRenderable(PolyLine l)
+	{
+		this(l.getPoints());		
 	}
 	
 	@Override
-	public void add(Point3D p) {
+	public void add(Vec3 p) {
 		super.add(p);
 		
 		if (bufferSize+1>bufferCapacity){
@@ -53,7 +66,7 @@ public class PolyLineRenderable extends PolyLine {
 	}
 	
 	@Override
-	public void add(List<Point3D> ps) {
+	public void add(List<Vec3> ps) {
 		super.add(ps);
 		
 		if (bufferSize+ps.size()>bufferCapacity){
@@ -97,6 +110,16 @@ public class PolyLineRenderable extends PolyLine {
 		
 		bufferCapacity = size;
 				
+	}
+	
+	void setVisible(boolean visible)
+	{
+		this.visible = visible;
+	}
+	
+	boolean isVisible()
+	{
+		return visible;		
 	}
 	
 	

@@ -1,47 +1,61 @@
 package hu.kovand.sketch3d.model;
 
-import hu.kovand.sketch3d.geometry.Point3D;
 import hu.kovand.sketch3d.geometry.PolyLine;
+import hu.kovand.sketch3d.geometry.Vec2;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class ModelCurve {
+import android.graphics.PointF;
+import android.os.PowerManager;
+
+public class ModelCurve extends ModelElement {
 	
-	int id;
 	
-	//Definition as a surface relative b-spline	
+	
 	ModelSurface parent;
-	ArrayList<ModelSurfaceAddress> controlPoints;
-	ArrayList<Float> knots;
+	List<Vec2> points;
 	
 	//optional relations
 	ModelPoint startPoint = null;
 	ModelPoint endPoint = null;
 	
 	
-	//Evaluated
-	PolyLine evalCurve;
 
-	public ModelCurve(ModelSurface parent,ArrayList<ModelSurfaceAddress> controlPoints,ArrayList<Float> knots) {
+	public ModelCurve(ModelSurface parent,List<Vec2> points) {
+		super();
 		this.parent = parent;
-		this.controlPoints = controlPoints;
-		this.knots = knots;
+		this.points = points;
 	}
 	
-	public void refreshEval()
+	
+	
+	public PolyLine evaluate()
 	{
-		//TODO
+		PolyLine result = new PolyLine();
+		for (int i=0;i<points.size();i++)
+		{
+			result.add(parent.evaluate(points.get(i)));						
+		}		
+		return result;
 	}
 	
-	public PolyLine getEval()
+	public void setParent(ModelSurface p)
 	{
-		return evalCurve;
+		parent = p;
 	}
 	
-	public Point3D evaluate(float t)
+	public int size()
 	{
-		//TODO calc u,w based on t
-		return parent.evaluate(new ModelSurfaceAddress(0.0f, 0.0f));
+		return points.size();
+		
+	}
+
+
+	@Override
+	public int getType() {
+		return TYPE_CURVE;
 	}
 	
 	

@@ -6,8 +6,8 @@ import java.util.List;
 
 import android.util.Log;
 
-
-import hu.kovand.sketch3d.geometry.Point3D;
+import hu.kovand.sketch3d.geometry.Vec2;
+import hu.kovand.sketch3d.geometry.Vec3;
 
 
 public class MyMath {
@@ -15,7 +15,7 @@ public class MyMath {
 	public static final int DIRECTION_FORWARD = 0;
 	public static final int DIRECTION_BACKWARD = 1;
 	
-	public static float polygonAreaIgnoringZ(ArrayList<Point3D> p) 
+	public static float polygonArea(ArrayList<Vec2> p) 
 	{ 
 		float area = 0;         
 		int j = p.size() - 1;
@@ -27,54 +27,42 @@ public class MyMath {
 		return area/2;
 	}
 	
-	public static float length(List<Point3D> p)
+	public static float length(List<Vec3> p)
+	{
+		return length(p, 1.0f, 1.0f, 1.0f);		
+	}
+	
+	public static float length(List<Vec3> p,float xlen,float ylen,float zlen)
 	{
 		float d = 0.0f;
 		
 		for (int i=1;i<p.size();i++)
 		{
-			float dx = p.get(i).getX() - p.get(i-1).getX();
-			float dy = p.get(i).getY() - p.get(i-1).getY();
-			float dz = p.get(i).getZ() - p.get(i-1).getZ();
+			float dx = (p.get(i).getX() - p.get(i-1).getX())*xlen;
+			float dy = (p.get(i).getY() - p.get(i-1).getY())*ylen;
+			float dz = (p.get(i).getZ() - p.get(i-1).getZ())*zlen;
 			d += Math.sqrt(dx*dx + dy*dy + dz*dz);
 		}		
 		return d;
 	}
 	
-	public static float distanceL2(Point3D p1,Point3D p2){
-		
-		float dx = p2.getX() - p1.getX();
-		float dy = p2.getY() - p1.getY(); 
-		float dz = p2.getZ() - p1.getZ();
-		
-		return (float) Math.sqrt(dx*dx+dy*dy+dz*dz);
-	}
+	
 	
 
-	
-	public static Point3D tangent(Point3D p1,Point3D p2)
-	{
-		float l = distanceL2(p1, p2);
-		float dx = p2.getX() - p1.getX();
-		float dy = p2.getY() - p1.getY(); 
-		float dz = p2.getZ() - p1.getZ();
-		
-		return new Point3D(dx/l, dy/l, dz/l);
-				
-	}
+
 	
 	//TODO optimizeable ?
 	
 	//last + 1 if the curve shorter
-	public static int findSpan(ArrayList<Point3D> p,int startindex,float distance,int direction)
+	public static int findSpan(List<Vec3> p,int startindex,float distance,int direction)
 	{
 		int i;
 		float d;
 		if (direction == DIRECTION_FORWARD)
 		{
 			for (i=startindex;i<p.size();i++)
-			{			
-				d = distanceL2(p.get(startindex), p.get(i));
+			{				
+				d = Vec3.distance(p.get(startindex), p.get(i)) ;
 				if (d>=distance)
 					break;
 			}
@@ -84,7 +72,7 @@ public class MyMath {
 		{
 			for (i=startindex;i>=0;i--)
 			{			
-				d = distanceL2(p.get(startindex), p.get(i));
+				d = Vec3.distance(p.get(startindex), p.get(i));
 				if (d>distance)
 					break;
 			}
@@ -93,15 +81,14 @@ public class MyMath {
 
 	}
 	
-	//TODO optimizeable 
 	
-	public static int findClosest(ArrayList<Point3D> arr,Point3D p)
+	public static int findClosest(List<Vec3> arr,Vec3 p)
 	{
 		float min = Float.MAX_VALUE;
 		int index = -1;
 		for (int i=0;i<arr.size();i++)
 		{
-			float d = distanceL2(p, arr.get(i));
+			float d = Vec3.distance(p, arr.get(i));
 			if (d<min){
 				index = i;
 				min = d;
@@ -119,7 +106,7 @@ public class MyMath {
 				   (-256.0f*hw + 455.11111f*qw)*t*t*t*t*t*t;	
 	}
 	
-	public static List<IntersectionAddress> findIntersections(List<Point3D> l1,List<Point3D> l2)
+	public static List<IntersectionAddress> findIntersections(List<Vec3> l1,List<Vec3> l2)
 	{
 		ArrayList<IntersectionAddress> addresses = new ArrayList<IntersectionAddress>();
 		for(int i=0;i<l1.size()-1;i++)
@@ -161,6 +148,8 @@ public class MyMath {
 		}
 		return addresses;
 	}
+	
+	
 	
 	
 	
