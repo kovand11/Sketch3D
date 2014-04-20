@@ -33,6 +33,11 @@ public class ModelPoint extends ModelElement {
 		return TYPE_POINT;
 	}
 	
+	@Override
+	public int getSubType() {
+		return SUBTYPE_POINT_COMMON;
+	}
+	
 	public ModelSurface getParent(){
 		return parent;
 	}

@@ -10,7 +10,7 @@ public class ModelSurfaceByTwoPointsAndSurface extends ModelWithOrigAndTwoBase {
 	
 	//orig: point1 
 	//base1: point2-point1
-	//base2: parent.base1 cross pare
+	//base2: parent.base1 cross parent.base1
 	
 	ModelPoint point1;
 	ModelPoint point2;
@@ -20,7 +20,7 @@ public class ModelSurfaceByTwoPointsAndSurface extends ModelWithOrigAndTwoBase {
 		super();
 		point1 = p1;
 		point2 = p2;
-		surface = s;		
+		surface = s;
 	}
 
 
@@ -38,5 +38,22 @@ public class ModelSurfaceByTwoPointsAndSurface extends ModelWithOrigAndTwoBase {
 	Vec3 getBaseVec2() {
 		return Vec3.crossProduct(Vec3.subtract(point2.evaluate(), point1.evaluate()), surface.getBaseVec1());
 	}
+	@Override
+	public int getSubType() {
+		return SUBTYPE_SURFACE_SURFACE_BY_TWO_POINTS_AND_SURFACE;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof ModelSurfaceByTwoPointsAndSurface)
+		{
+			ModelSurfaceByTwoPointsAndSurface s = (ModelSurfaceByTwoPointsAndSurface)o;
+			return (this.surface == s.surface && (( this.point1 == s.point1 && this.point2 == s.point2 ) || ( this.point1 == s.point2 && this.point2 == s.point1 )));
+		}
+		else return false;
+		
+	}
+	
+	
 
 }

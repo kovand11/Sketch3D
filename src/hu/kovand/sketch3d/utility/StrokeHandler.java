@@ -20,7 +20,7 @@ public class StrokeHandler {
 	
 
 	public static int RESERVE_SIZE = 100;
-	public static int MIN_POINT_COUNT = 20;
+	public static int MIN_POINT_COUNT = 15;
 	
 	
 	List<Vec2> curve;

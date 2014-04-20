@@ -11,14 +11,12 @@ public abstract class ModelSurface extends ModelElement {
 	
 	private List<ModelPoint> points;
 	private List<ModelCurve> curves;
-	UUID id;
 	
 
 	public ModelSurface() {
 		super();
 		points = new ArrayList<ModelPoint>();
 		curves = new ArrayList<ModelCurve>();
-		id = UUID.randomUUID();
 	}
 	
 	public abstract Vec3 evaluate(Vec2 addr);
@@ -55,6 +53,13 @@ public abstract class ModelSurface extends ModelElement {
 	@Override
 	public int getType() {
 		return TYPE_SURFACE;
+	}
+	
+
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return super.hashCode();
 	}
 
 }

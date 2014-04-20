@@ -23,10 +23,7 @@ public class HermiteSpline {
 	{
 		PolyLine result = new PolyLine();
 		
-		Log.d("points", Float.toString(p1.getX()) + " " +Float.toString(p1.getY()) + " " +Float.toString(p1.getZ()));
-		Log.d("points", Float.toString(m1.getX()) + " " +Float.toString(m1.getY()) + " " +Float.toString(m1.getZ()));
-		Log.d("points", Float.toString(p2.getX()) + " " +Float.toString(p2.getY()) + " " +Float.toString(p2.getZ()));
-		Log.d("points", Float.toString(m2.getX()) + " " +Float.toString(m2.getY()) + " " +Float.toString(m2.getZ()));
+
 
 		
 		
@@ -36,16 +33,13 @@ public class HermiteSpline {
 			float c00 = hermiteCoeff(0, 0, t);
 			float c10 = hermiteCoeff(1, 0, t);
 			float c01 = hermiteCoeff(0, 1, t);
-			float c11 = hermiteCoeff(1, 1, t);
-			
-			Log.d("weights", Float.toString(t) + " " +Float.toString(c00) + " " +Float.toString(c10) + " " +Float.toString(c01)+ " " +Float.toString(c11));		
+			float c11 = hermiteCoeff(1, 1, t);		
 			
 			
 			float x = p1.getX()*c00 + m1.getX()*c10 + p2.getX()*c01 + m2.getX()*c11;
 			float y = p1.getY()*c00 + m1.getY()*c10 + p2.getY()*c01 + m2.getY()*c11;
 			float z = p1.getZ()*c00 + m1.getZ()*c10 + p2.getZ()*c01 + m2.getZ()*c11;
 			
-			Log.d("result", Float.toString(x) + " " +Float.toString(y) + " " +Float.toString(z));
 			
 			result.add(new Vec3(x, y, z));
 		}

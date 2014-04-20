@@ -93,14 +93,9 @@ public class GLRenderer implements Renderer {
     
     //from upVec
     float[] rightVec;
-    
-    
 
     
-
     
-    List<Vec3Renderable> cube_points;
-    List<PolyLineRenderable> cube_lines;
     
     
     
@@ -116,80 +111,10 @@ public class GLRenderer implements Renderer {
 		upVec = new float[4];
 		rightVec = new float[4];
 		
-		cube_points = new ArrayList<Vec3Renderable>();
-		
-		/*cube_points.add(new Vec3Renderable(-500.0f,-500.0f,500.0f));
-		cube_points.add(new Vec3Renderable(-500.0f,+500.0f,500.0f));
-		cube_points.add(new Vec3Renderable(+500.0f,-500.0f,500.0f));
-		cube_points.add(new Vec3Renderable(+500.0f,+500.0f,500.0f));
-		cube_points.add(new Vec3Renderable(-500.0f,-500.0f,-500.0f));
-		cube_points.add(new Vec3Renderable(-500.0f,+500.0f,-500.0f));
-		cube_points.add(new Vec3Renderable(+500.0f,-500.0f,-500.0f));
-		cube_points.add(new Vec3Renderable(+500.0f,+500.0f,-500.0f));*/
-		
-		
-		PolyLineRenderable pl;
-		cube_lines = new ArrayList<PolyLineRenderable>();
-		
-		/*pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, -500.0f)); pl.add(new Vec3(-500.0f, +500.0f, -500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, -500.0f)); pl.add(new Vec3(+500.0f, -500.0f, -500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, -500.0f)); pl.add(new Vec3(+500.0f, -500.0f, -500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, -500.0f)); pl.add(new Vec3(-500.0f, +500.0f, -500.0f));
-		cube_lines.add(pl);
-		
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, +500.0f)); pl.add(new Vec3(-500.0f, +500.0f, +500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, +500.0f)); pl.add(new Vec3(+500.0f, -500.0f, +500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, +500.0f)); pl.add(new Vec3(+500.0f, -500.0f, +500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, +500.0f)); pl.add(new Vec3(-500.0f, +500.0f, +500.0f));
-		cube_lines.add(pl);
-		
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, -500.0f)); pl.add(new Vec3(-500.0f, -500.0f, +500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, +500.0f, -500.0f)); pl.add(new Vec3(-500.0f, +500.0f, +500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, -500.0f, -500.0f)); pl.add(new Vec3(+500.0f, -500.0f, +500.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, -500.0f)); pl.add(new Vec3(+500.0f, +500.0f, +500.0f));
-		cube_lines.add(pl);
-		
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, -500.0f)); pl.add(new Vec3(+500.0f, +500.0f, -500.0f));
-		cube_lines.add(pl);*/
-		
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, 0.0f)); pl.add(new Vec3(-500.0f, +500.0f, 0.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(-500.0f, -500.0f, 0.0f)); pl.add(new Vec3(+500.0f, -500.0f, 0.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, 0.0f)); pl.add(new Vec3(+500.0f, -500.0f, 0.0f));
-		cube_lines.add(pl);
-		pl = new PolyLineRenderable(2);
-		pl.add(new Vec3(+500.0f, +500.0f, 0.0f)); pl.add(new Vec3(-500.0f, +500.0f, 0.0f));
-		cube_lines.add(pl);
-		
 		
 		
 		Matrix.setIdentityM(identityMatrix, 0);
+
 		
 	}
 
@@ -220,8 +145,10 @@ public class GLRenderer implements Renderer {
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
 		
+
 		
 		
+			
 		fovy = 45.0f;
 	    aspect = (1.0f*width)/height;
 	    zNear = Constants.MODEL_FRONT_Z;
@@ -245,6 +172,7 @@ public class GLRenderer implements Renderer {
 	    upVec[3] = 1.0f;
 	    
 	    recalculateMatrices();	
+
 
 	}
 	
@@ -403,8 +331,6 @@ public class GLRenderer implements Renderer {
 		recalculateRightVec();
 		String s = (new Vec4(upVec)).toString()+" "+(new Vec4(rightVec)).toString();
 		
-		Log.d("move", s);
-		
 		eyeVec = Vec4.addAsNorm(new Vec4(eyeVec), Vec4.multiplyAsNorm(new Vec4(rightVec), dx)).toArray();
 		eyeVec = Vec4.addAsNorm(new Vec4(eyeVec), Vec4.multiplyAsNorm(new Vec4(upVec), dy)).toArray();
 		centerVec = Vec4.addAsNorm(new Vec4(centerVec), Vec4.multiplyAsNorm(new Vec4(rightVec), dx)).toArray();
@@ -440,7 +366,8 @@ public class GLRenderer implements Renderer {
 	
 	void recalculateMatrices()
 	{	
-		Matrix.perspectiveM(projectionMatrix, 0, fovy, aspect, zNear, zFar);
+
+		Matrix.perspectiveM(projectionMatrix, 0, fovy, aspect, zNear, zFar);		
 		Matrix.setLookAtM(viewMatrix, 0, eyeVec[0]/eyeVec[3], eyeVec[1]/eyeVec[3], eyeVec[2]/eyeVec[3],
 				centerVec[0]/centerVec[3], centerVec[1]/centerVec[3], centerVec[2]/centerVec[3],
 				upVec[0]/upVec[3], upVec[1]/upVec[3], upVec[2]/upVec[3]);

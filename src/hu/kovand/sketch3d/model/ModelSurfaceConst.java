@@ -38,4 +38,9 @@ public class ModelSurfaceConst extends ModelWithOrigAndTwoBase {
 		// TODO Auto-generated method stub
 		return v2;
 	}
+	
+	@Override
+	public int getSubType() {
+		return SUBTYPE_SURFACE_CONST;
+	}
 }

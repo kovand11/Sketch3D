@@ -24,6 +24,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -47,6 +51,7 @@ public class MainActivity extends Activity {
 	
 	//UI
 	Switch rotationLockSwitch;
+	Spinner surfaceDefineSpinner; ArrayAdapter<CharSequence> surfaceDefineSpinnerAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +112,7 @@ public class MainActivity extends Activity {
 		if (rendererSet){
 			glSurfaceView.onResume();
 		}
+
 	}
 	
 	
@@ -119,9 +125,19 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		
 		MenuItem item = menu.findItem(R.id.action_rotation_switch);
 		View v = item.getActionView();
 		rotationLockSwitch = (Switch)v.findViewById(R.id.rotationLockSwitch);
+		
+		item = menu.findItem(R.id.action_surface_define);
+		v = item.getActionView();		
+		surfaceDefineSpinner = (Spinner)v.findViewById(R.id.surface_define_spinner);
+		List<CharSequence> spinnerArray = new ArrayList<CharSequence>();
+		surfaceDefineSpinnerAdapter = new ArrayAdapter<CharSequence>(this, R.layout.simple_spinner_dropdown_item_light, spinnerArray);
+		surfaceDefineSpinner.setAdapter(surfaceDefineSpinnerAdapter);
+		surfaceDefineSpinner.setOnItemSelectedListener( new surfaceDefineListener());
+		surfaceDefineSpinnerAdapter.add("Select");
 		
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -129,17 +145,19 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-		
 		switch (id)
 		{
 		case R.id.action_accept:
+			
+			
 			break;
 			
 		case R.id.action_cancel:
+			model3D.clear();
 			glSurfaceView.queueEvent(new Runnable() {				
 				@Override
 				public void run() {
-					model3D.clear();					
+					model3D.refreshAllBuffer();										
 				}
 			});
 			break;
@@ -174,11 +192,6 @@ public class MainActivity extends Activity {
 		startActivity(intent);		
 	}
 	
-	void openLogActivity()
-	{
-		//TODO unimplemented
-				
-	}
 	
 	
 
@@ -234,14 +247,10 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector) {
-			//GESTURE finger scale-end
-			Log.d(TAG+".scale.end", Float.toString(detector.getScaleFactor()));
 		}
 		
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector) {
-			//GESTURE finger scale-begin
-			Log.d(TAG+".scale.begin", Float.toString(detector.getScaleFactor()));
 			return true;
 		}
 		
@@ -250,20 +259,13 @@ public class MainActivity extends Activity {
 			//GESTURE finger onscale
 			
 			final float scale = detector.getScaleFactor();
-			
-			Log.d(TAG+".scale.on", Float.toString(scale));
-			
-			
-			
 			glSurfaceView.queueEvent(new Runnable() {
 				
 				@Override
 				public void run() {
-					renderer.zoom(scale);
-					
+					renderer.zoom(scale);					
 				}
-			});
-			
+			});		
 			return true;
 		}
 	};
@@ -280,11 +282,17 @@ public class MainActivity extends Activity {
 					if (i%2==0)
 					{
 						Vec2 addr = model3D.getActiveSurface().findRayIntersection(stroke.get(i), renderer.getMVP());
-						Log.d("addr", Float.toString(addr.getX()) + " " + Float.toString(addr.getY()));
 						curve.add(addr);
 					}
 				}
-				model3D.addCurve(curve);				
+				model3D.addCurve(curve);
+				
+				glSurfaceView.queueEvent(new Runnable() {					
+					@Override
+					public void run() {
+						model3D.refreshAllBuffer();						
+					}
+				});
 			}
 			
 		}
@@ -362,27 +370,11 @@ public class MainActivity extends Activity {
 	{
 		
 		@Override
-		public boolean onSingleTapConfirmed(final MotionEvent e) {
+		public boolean onSingleTapConfirmed(final MotionEvent e) {	
+							
+
 			
-			glSurfaceView.queueEvent(new Runnable() {
-				
-				@Override
-				public void run() {
-					Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
-					ModelElement elem = model3D.getElementByScreenPosition(p, glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
-					if (elem != null){
-						if (model3D.isSelected(elem)){
-							model3D.unselect(elem);
-						}
-						else{
-							model3D.select(elem);
-						}
-					}
-					
-				}
-			});
-			
-			/*Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
+			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
 			ModelElement elem = model3D.getElementByScreenPosition(p, glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
 			if (elem != null){
 				if (model3D.isSelected(elem)){
@@ -391,8 +383,29 @@ public class MainActivity extends Activity {
 				else{
 					model3D.select(elem);
 				}
-				Toast.makeText(context, elem.getId().toString(),Toast.LENGTH_SHORT).show();
-			}*/
+			}	
+			
+			glSurfaceView.queueEvent(new Runnable() {
+				
+				@Override
+				public void run() {
+					model3D.refreshAllBuffer();					
+				}
+			});
+			
+			
+			surfaceDefineSpinnerAdapter.clear();			
+			surfaceDefineSpinnerAdapter.add("Select");
+			
+			List<String> defs = model3D.getPossibleSurfaceDefinitions();
+			surfaceDefineSpinner.setSelection(0);
+			for (int i=0;i<defs.size();i++)
+			{
+				surfaceDefineSpinnerAdapter.add(defs.get(i));						
+			}			
+								
+		
+
 			return true;
 		}	
 		
@@ -402,6 +415,14 @@ public class MainActivity extends Activity {
 			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
 			Vec2 mapped = model3D.getActiveSurface().findRayIntersection(p, renderer.getMVP());
 			model3D.addPoint(mapped);
+			glSurfaceView.queueEvent(new Runnable() {
+				
+				@Override
+				public void run() {
+					model3D.refreshAllBuffer();
+					
+				}
+			});
 			return true;
 		}
 		
@@ -412,6 +433,42 @@ public class MainActivity extends Activity {
 		}
 		
 	};
+	
+	
+	class surfaceDefineListener implements OnItemSelectedListener{
+
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view,
+				int position, long id) {
+			
+			
+			final String str = (String)parent.getItemAtPosition(position);
+			
+			model3D.changeActiveSurface(str);
+			
+			glSurfaceView.queueEvent(new Runnable() {				
+				@Override
+				public void run() {
+					model3D.refreshAllBuffer();
+				}
+			});
+						
+		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> parent) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	};
+	
+
+	
+	
+
+	
+	
 
 
 			

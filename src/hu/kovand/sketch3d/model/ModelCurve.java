@@ -46,6 +46,10 @@ public class ModelCurve extends ModelElement {
 		parent = p;
 	}
 	
+	public ModelSurface getParent(){
+		return parent;
+	}
+	
 	public int size()
 	{
 		return points.size();
@@ -56,6 +60,11 @@ public class ModelCurve extends ModelElement {
 	@Override
 	public int getType() {
 		return TYPE_CURVE;
+	}
+	
+	@Override
+	public int getSubType() {
+		return SUBTYPE_CURVE_COMMON;
 	}
 	
 	

@@ -103,10 +103,9 @@ abstract public class ModelWithOrigAndTwoBase extends ModelSurface {
 		return Vec3.add(orig, offs);
 	}
 	
-	
-
-
-
-
+	@Override
+	public String toString() {
+		return "Surface: orig = " + getOrig().toString() + " v1 = " + getBaseVec1().toString() + " v2 = " + getBaseVec2().toString();
+	}
 
 }

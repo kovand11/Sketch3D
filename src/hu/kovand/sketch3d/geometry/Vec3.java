@@ -89,6 +89,11 @@ public class Vec3 {
 		return new Vec2(x,y);		
 	}
 	
+	@Override
+	public String toString() {
+		return "( " + Float.toString(x) + " " +Float.toString(y) + " " + Float.toString(z) + " )";
+	}
+	
 	
 
 }

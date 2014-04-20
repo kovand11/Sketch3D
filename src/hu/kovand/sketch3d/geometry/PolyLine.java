@@ -5,7 +5,6 @@ import hu.kovand.sketch3d.utility.MyMath;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.FloatMath;
 
 public class PolyLine {
 	

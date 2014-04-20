@@ -19,25 +19,48 @@ import hu.kovand.sketch3d.model.ModelCurve;
 import hu.kovand.sketch3d.model.ModelElement;
 import hu.kovand.sketch3d.model.ModelPoint;
 import hu.kovand.sketch3d.model.ModelSurface;
+import hu.kovand.sketch3d.model.ModelSurfaceByThreePoints;
 import hu.kovand.sketch3d.model.ModelSurfaceByTwoPointsAndSurface;
 import hu.kovand.sketch3d.model.ModelSurfaceConst;
+import hu.kovand.sketch3d.model.ModelSurfaceOffset;
 import hu.kovand.sketch3d.model.ModelWithOrigAndTwoBase;
 import hu.kovand.sketch3d.utility.Constants;
 
 public class Model3D  {
 	public static final String TAG = "Model3D";
 	
+	public static final String DEFINE_BY_PARENT = "Parent";  //one point, one curve
+	public static final String DEFINE_BY_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE = "Po Po Perp(Su)"; //two points with common surface
+	public static final String DEFINE_BY_3POINTS = "Po Po Po"; //3 points
+	public static final String DEFINE_BY_PARENTSURFACE_AND_OFFSET_POINT = "Parent Offs(Po)"; //Parent of first elem and an offset point
+	
+	
+	
+	
 	private ModelSurface activeSurface;
 	private List<ModelSurface> surfaceList;
-	private float[] MvpMatrix;
 	private List<ModelElement> selectedList;
+	
+	List<FloatBuffer> selectedPointsVertexBufferList;
+	List<FloatBuffer> selectedCurvesVertexBufferList;
+	List<Integer> selectedCurvesSizeList;
+	
+	List<FloatBuffer> activePointsVertexBufferList;
+	List<FloatBuffer> activeCurvesVertexBufferList;
+	List<Integer> activeCurvesSizeList;
+	
+	List<FloatBuffer> passivePointsVertexBufferList;
+	List<FloatBuffer> passiveCurvesVertexBufferList;
+	List<Integer> passiveCurvesSizeList;
 	
 	public Model3D()
 	{
 		activeSurface = new ModelSurfaceConst(new Vec3(0.0f,0.0f,0.0f),new Vec3(1.0f,0.0f,0.0f),new Vec3(0.0f,1.0f,0.0f));
 		surfaceList = new ArrayList<ModelSurface>();
-		surfaceList.add(activeSurface);	
+		surfaceList.add(activeSurface);
+		Log.d("newsurf", ((ModelWithOrigAndTwoBase)(activeSurface)).toString());
 		selectedList = new ArrayList<ModelElement>();
+		refreshAllBuffer();
 	}
 	
 	public void addPoint(Vec2 addr)
@@ -60,14 +83,13 @@ public class Model3D  {
 		for (int i=0;i<l.size();i++){
 			bspline2d.add(new Vec2(l.get(i).getX(), l.get(i).getY()));
 		}
-		
-		//
+		//TODO
 		activeSurface.addCurve(bspline2d);
 	}
 	
 	//SELECTED
 	
-	public List<FloatBuffer> getSelectedPointsVertexBufferList()
+	public void refreshSelectedPointsVertexBufferList()
 	{
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		for (int i=0;i<selectedList.size();i++)
@@ -79,10 +101,15 @@ public class Model3D  {
 			
 		}
 
-		return list;
+		selectedPointsVertexBufferList = list;
 	}
 	
-	/*public List<FloatBuffer> getSelectedCurvesVertexBufferList()
+	public List<FloatBuffer> getSelectedPointsVertexBufferList()
+	{
+		return selectedPointsVertexBufferList;
+	}
+	
+	/*public List<FloatBuffer> refreshSelectedCurvesVertexBufferList()
 	{
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		List<ModelCurve> modelCurves = activeSurface.getCurves();
@@ -93,7 +120,7 @@ public class Model3D  {
 		return list;
 	}*/
 	
-	/*public List<Integer> getSelectedCurvesSizeList()
+	/*public List<Integer> refreshSelectedCurvesSizeList()
 	{
 		List<Integer> list = new ArrayList<Integer>();
 		List<ModelCurve> modelCurves = activeSurface.getCurves();
@@ -106,7 +133,7 @@ public class Model3D  {
 	
 	
 	//ACTIVE
-	public List<FloatBuffer> getActivePointsVertexBufferList()
+	public void refreshActivePointsVertexBufferList()
 	{
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		List<ModelPoint> modelPoints = activeSurface.getPoints();
@@ -115,10 +142,14 @@ public class Model3D  {
 				list.add((new Vec3Renderable(modelPoints.get(i).evaluate())).getVertexBuffer());
 			}
 		}
-		return list;
+		activePointsVertexBufferList = list;
 	}
 	
-	public List<FloatBuffer> getActiveCurvesVertexBufferList()
+	public List<FloatBuffer> getActivePointsVertexBufferList(){
+		return activePointsVertexBufferList;
+	}
+	
+	public void refreshActiveCurvesVertexBufferList()
 	{
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		List<ModelCurve> modelCurves = activeSurface.getCurves();
@@ -126,10 +157,14 @@ public class Model3D  {
 		{
 			list.add((new PolyLineRenderable(modelCurves.get(i).evaluate())).getVertexBuffer());						
 		}
-		return list;
+		activeCurvesVertexBufferList = list;
 	}
 	
-	public List<Integer> getActiveCurvesSizeList()
+	public List<FloatBuffer> getActiveCurvesVertexBufferList(){
+		return activeCurvesVertexBufferList;
+	}
+	
+	public void refreshActiveCurvesSizeList()
 	{
 		List<Integer> list = new ArrayList<Integer>();
 		List<ModelCurve> modelCurves = activeSurface.getCurves();
@@ -137,14 +172,18 @@ public class Model3D  {
 		{
 			list.add(modelCurves.get(i).size());						
 		}
-		return list;		
+		activeCurvesSizeList = list;		
 	}
+	
+	public List<Integer> getActiveCurvesSizeList(){
+		return activeCurvesSizeList;
+	}
+	
 	
 	//PASSIVE
 	
-	public List<FloatBuffer> getPassivePointsVertexBufferList()
-	{
-		
+	public void refreshPassivePointsVertexBufferList()
+	{		
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		for (int i=0;i<surfaceList.size();i++)
 		{
@@ -157,11 +196,14 @@ public class Model3D  {
 				}
 			}
 		}
-		Log.d("tmp", Integer.toString(list.size()));
-		return list;	
+		passivePointsVertexBufferList = list;	
 	}
 	
-	public List<FloatBuffer> getPassiveCurvesVertexBufferList()
+	public List<FloatBuffer> getPassivePointsVertexBufferList(){
+		return passivePointsVertexBufferList;
+	}
+	
+	public void refreshPassiveCurvesVertexBufferList()
 	{
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		for (int i=0;i<surfaceList.size();i++)
@@ -174,10 +216,14 @@ public class Model3D  {
 				}
 			}
 		}
-		return list;
+		passiveCurvesVertexBufferList = list;
 	}
 	
-	public List<Integer> getPassiveCurvesSizeList()
+	public List<FloatBuffer> getPassiveCurvesVertexBufferList(){
+		return passiveCurvesVertexBufferList;
+	}
+	
+	public void refreshPassiveCurvesSizeList()
 	{
 		List<Integer> list = new ArrayList<Integer>();
 		for (int i=0;i<surfaceList.size();i++)
@@ -190,7 +236,11 @@ public class Model3D  {
 				}
 			}
 		}
-		return list;
+		passiveCurvesSizeList = list;
+	}
+	
+	public List<Integer> getPassiveCurvesSizeList()	{
+		return passiveCurvesSizeList;		
 	}
 	
 	
@@ -238,23 +288,17 @@ public class Model3D  {
 		activeSurface = new ModelSurfaceConst(new Vec3(0.0f,0.0f,0.0f),new Vec3(1.0f,0.0f,0.0f),new Vec3(0.0f,1.0f,0.0f));
 		surfaceList = new ArrayList<ModelSurface>();
 		selectedList = new ArrayList<ModelElement>();
-		surfaceList.add(activeSurface);		
+		surfaceList.add(activeSurface);
 	}
 	
 	public void select(ModelElement elem)
 	{
 		selectedList.add(elem);
-		if (selectedList.size()==2){
-			changeActiveSurface(0);
-		}
 	}
 	
 	public void unselect(ModelElement elem)
 	{
-		selectedList.remove(elem);	
-		if (selectedList.size()==2){
-			changeActiveSurface(0);
-		}
+		selectedList.remove(elem);
 	}
 	
 	public boolean isSelected(ModelElement elem)
@@ -262,17 +306,162 @@ public class Model3D  {
 		return selectedList.contains(elem);		
 	}
 	
-	
-	public void changeActiveSurface(int ignore)
+	public List<String> getPossibleSurfaceDefinitions()
 	{
-		//TODO only supports 2 point and a common surface
-		//unsafe
+		ArrayList<String> arr = new ArrayList<String>();
+		if (selectedList.size() == 1)
+		{
+			arr.add(DEFINE_BY_PARENT);
+		}
+		else if (selectedList.size() == 2)
+		{
+			//test for DEFINE_BY_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE 
+			if (selectedList.get(0).getType()==ModelElement.TYPE_POINT && selectedList.get(1).getType()==ModelElement.TYPE_POINT)
+			{
+				ModelPoint p1 = (ModelPoint)selectedList.get(0);
+				ModelPoint p2 = (ModelPoint)selectedList.get(1);				
+				if (p1.getParent() == p2.getParent()){
+					arr.add(DEFINE_BY_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE);
+				}			
+			}
+			
+			if (selectedList.get(1).getType()==ModelElement.TYPE_POINT ){
+				ModelElement m1 = selectedList.get(0);
+				ModelPoint p1 = (ModelPoint)(selectedList.get(1));
+				if (m1.getType() == ModelElement.TYPE_POINT)
+				{
+					if (((ModelPoint)(m1)).getParent() != p1.getParent()){
+						arr.add(DEFINE_BY_PARENTSURFACE_AND_OFFSET_POINT);
+					}
+				}
+				else if (m1.getType() == ModelElement.TYPE_CURVE)
+				{
+					if (((ModelCurve)(m1)).getParent() != p1.getParent()){
+						arr.add(DEFINE_BY_PARENTSURFACE_AND_OFFSET_POINT);
+					}					
+				}
+												
+			}
+		}
+		else if (selectedList.size() == 3)
+		{
+			if (selectedList.get(0).getType()==ModelElement.TYPE_POINT && selectedList.get(1).getType()==ModelElement.TYPE_POINT && selectedList.get(2).getType()==ModelElement.TYPE_POINT){
+				arr.add(DEFINE_BY_3POINTS);
+			}		
+		}
+		return arr;
+	}
+	
+	
+	public void changeActiveSurface(String mode)
+	{
 		
-		ModelSurfaceByTwoPointsAndSurface newSurf = new ModelSurfaceByTwoPointsAndSurface((ModelPoint)(selectedList.get(0)), (ModelPoint)(selectedList.get(1)),(ModelWithOrigAndTwoBase)(((ModelPoint)(selectedList.get(0))).getParent()) );
+		/*ModelSurfaceByTwoPointsAndSurface newSurf = new ModelSurfaceByTwoPointsAndSurface((ModelPoint)(selectedList.get(0)), (ModelPoint)(selectedList.get(1)),(ModelWithOrigAndTwoBase)(((ModelPoint)(selectedList.get(0))).getParent()) );
 		surfaceList.add(newSurf);
-		activeSurface = newSurf;
+		activeSurface = newSurf;*/
 		
+
+		if ( mode == DEFINE_BY_PARENT )
+		{
+			if (selectedList.get(0).getType() == ModelElement.TYPE_POINT)
+			{
+				activeSurface = ((ModelPoint)(selectedList.get(0))).getParent();				
+			}
+		}
+		else if ( mode == DEFINE_BY_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE )
+		{
+			ModelSurfaceByTwoPointsAndSurface newSurf = new ModelSurfaceByTwoPointsAndSurface((ModelPoint)(selectedList.get(0)),
+					(ModelPoint)(selectedList.get(1)),(ModelWithOrigAndTwoBase)(((ModelPoint)(selectedList.get(0))).getParent()) );
+			boolean selected = false;
+			for (int i=0;i<surfaceList.size();i++)
+			{				
+				if (surfaceList.get(i).equals(newSurf))
+				{
+					activeSurface = surfaceList.get(i);
+					selected = true;					
+					break;
+				}
+				
+			}
+			if (!selected){
+				surfaceList.add(newSurf);
+				activeSurface = newSurf;					
+			}
+						
+		}
+		else if ( mode == DEFINE_BY_3POINTS )
+		{
+			ModelSurfaceByThreePoints newSurf = new ModelSurfaceByThreePoints((ModelPoint)(selectedList.get(0)),
+					(ModelPoint)(selectedList.get(1)),(ModelPoint)(selectedList.get(2)));
+			boolean selected = false;
+			for (int i=0;i<surfaceList.size();i++)
+			{				
+				if (surfaceList.get(i).equals(newSurf))
+				{
+					activeSurface = surfaceList.get(i);
+					selected = true;					
+					break;
+				}
+				
+			}
+			if (!selected){
+				surfaceList.add(newSurf);
+				activeSurface = newSurf;					
+			}
+			
+		}
+		else if ( mode == DEFINE_BY_PARENTSURFACE_AND_OFFSET_POINT )
+		{
+			ModelElement e1 = selectedList.get(0);
+			ModelElement e2 = selectedList.get(1);
+			
+			ModelSurfaceOffset newSurf = null;
+			
+			
+			if (e1.getType() == ModelElement.TYPE_POINT)
+			{
+				ModelPoint p1 = (ModelPoint)e1;
+				newSurf = new ModelSurfaceOffset((ModelWithOrigAndTwoBase)p1.getParent(), (ModelPoint)e2);				
+			}
+			
+			//TODO for curve
+			
+			if (newSurf!=null)
+			{
+				boolean selected = false;
+				for (int i=0;i<surfaceList.size();i++)
+				{				
+					if (surfaceList.get(i).equals(newSurf))
+					{
+						activeSurface = surfaceList.get(i);
+						selected = true;					
+						break;
+					}
+					
+				}
+				if (!selected){
+					surfaceList.add(newSurf);
+					activeSurface = newSurf;					
+				}		
+				
+			}						
+		}
+		Log.d("newsurf", ((ModelWithOrigAndTwoBase)(activeSurface)).toString());
+	}
+	
+	public void refreshAllBuffer()
+	{
+		refreshSelectedPointsVertexBufferList();
+		//
+		//
 		
+		refreshActivePointsVertexBufferList();
+		refreshActiveCurvesVertexBufferList();
+		refreshActiveCurvesSizeList();
+		
+		refreshPassivePointsVertexBufferList();
+		refreshPassiveCurvesVertexBufferList();
+		refreshPassiveCurvesSizeList();
 		
 		
 	}
