@@ -1,28 +1,38 @@
 package hu.kovand.sketch3d.model;
 
+import java.util.UUID;
+
 import hu.kovand.sketch3d.geometry.Vec2;
 import hu.kovand.sketch3d.geometry.Vec3;
+import hu.kovand.sketch3d.graphics.Model3D;
 
-import java.util.UUID;
+import android.os.Parcel;
+
 
 
 public class ModelPoint extends ModelElement {
 	
-	ModelSurface parent;
+	UUID parent;
 	Vec2 address;
 
-	public ModelPoint(ModelSurface par ,Vec2 addr) {
-		super();
-		parent = par;
+	public ModelPoint(Model3D m,UUID p ,Vec2 addr) {
+		super(m);
+		parent = p;
 		address = addr;
+	}
+	
+	public ModelPoint (Parcel p)
+	{
+		super(p.readString());
+		address = p.readParcelable(null);
 	}
 	
 	public Vec3 evaluate()
 	{
-		return parent.evaluate(address);	
+		return ((ModelSurface)getModel().getElementById(parent)).evaluate(address);	
 	}
 	
-	public void setParent(ModelSurface p)
+	public void setParent(UUID p)
 	{
 		parent = p;
 	}
@@ -38,7 +48,7 @@ public class ModelPoint extends ModelElement {
 		return SUBTYPE_POINT_COMMON;
 	}
 	
-	public ModelSurface getParent(){
+	public UUID getParent(){
 		return parent;
 	}
 

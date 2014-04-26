@@ -1,31 +1,41 @@
 package hu.kovand.sketch3d.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import hu.kovand.sketch3d.geometry.Vec3;
+import hu.kovand.sketch3d.graphics.Model3D;
 
-public class ModelSurfaceOffset extends ModelWithOrigAndTwoBase {
+public class ModelSurfaceOffset extends ModelSurfaceWithOrigAndTwoBase {
 	
-	ModelWithOrigAndTwoBase surface;
-	ModelPoint point;
+	UUID surface;
+	UUID point;
 
-	public ModelSurfaceOffset(ModelWithOrigAndTwoBase s,ModelPoint p) {
-		super();
+	public ModelSurfaceOffset(Model3D m,UUID s,UUID p) {
+		super(m);
 		surface = s;
 		point = p;
 	}
 
 	@Override
 	Vec3 getOrig() {
-		return point.evaluate();
+		ModelPoint p = (ModelPoint)(getModel().getElementById(point));
+		return p.evaluate();
 	}
 
 	@Override
 	Vec3 getBaseVec1() {
-		return surface.getBaseVec1();
+
+		ModelSurfaceWithOrigAndTwoBase s = (ModelSurfaceWithOrigAndTwoBase)(getModel().getElementById(surface));
+		return s.getBaseVec1();
 	}
 
 	@Override
 	Vec3 getBaseVec2() {
-		return surface.getBaseVec2();
+
+		ModelSurfaceWithOrigAndTwoBase s = (ModelSurfaceWithOrigAndTwoBase)(getModel().getElementById(surface));
+		return s.getBaseVec2();
 	}
 
 	@Override
@@ -42,5 +52,14 @@ public class ModelSurfaceOffset extends ModelWithOrigAndTwoBase {
 		}
 		else return false;
 	}
+	
+	public java.util.List<UUID> getExtraPoints() 
+	{
+		List<UUID> arr = new ArrayList<UUID>();
+		arr.add(point);
+		return arr;		
+	};
+	
+	
 
 }

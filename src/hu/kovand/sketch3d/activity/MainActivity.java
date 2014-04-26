@@ -2,12 +2,14 @@ package hu.kovand.sketch3d.activity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import hu.kovand.sketch3d.R;
 import hu.kovand.sketch3d.geometry.Vec2;
 import hu.kovand.sketch3d.graphics.GLRenderer;
 import hu.kovand.sketch3d.graphics.Model3D;
 import hu.kovand.sketch3d.model.ModelElement;
+import hu.kovand.sketch3d.model.ModelSurface;
 import hu.kovand.sketch3d.utility.StrokeHandler;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -42,7 +44,7 @@ public class MainActivity extends Activity {
 	private boolean supportsEs2;	
 	GLRenderer renderer;		
 
-	Model3D model3D;	
+	Model3D model3D; List<Model3D> model3DList;	boolean isModelChanged;
 	private GestureDetector fingerDetector;
 	private GestureDetector penDetector;
 	private StrokeHandler strokeHandler;
@@ -52,6 +54,7 @@ public class MainActivity extends Activity {
 	//UI
 	Switch rotationLockSwitch;
 	Spinner surfaceDefineSpinner; ArrayAdapter<CharSequence> surfaceDefineSpinnerAdapter;
+	Spinner elementDefineSpinner; ArrayAdapter<CharSequence> elementDefineSpinnerAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +96,9 @@ public class MainActivity extends Activity {
 		fingerDetector = new GestureDetector(context,new fingerGestureListener());
 		penDetector = new GestureDetector(context,new PenGestureListener());
 		fingerScaleGestureDetector = new ScaleGestureDetector(context,fingerScaleGestureListener);
+		model3DList = new ArrayList<Model3D>();
 		
-			
+		isModelChanged = false;
 
 	}
 	
@@ -115,8 +119,6 @@ public class MainActivity extends Activity {
 
 	}
 	
-	
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);		
@@ -126,18 +128,30 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		
+		//Reference to roatationSwitch
 		MenuItem item = menu.findItem(R.id.action_rotation_switch);
 		View v = item.getActionView();
 		rotationLockSwitch = (Switch)v.findViewById(R.id.rotationLockSwitch);
 		
+		//Reference to surfaceDefineSpinner and assign adapter
 		item = menu.findItem(R.id.action_surface_define);
 		v = item.getActionView();		
 		surfaceDefineSpinner = (Spinner)v.findViewById(R.id.surface_define_spinner);
-		List<CharSequence> spinnerArray = new ArrayList<CharSequence>();
-		surfaceDefineSpinnerAdapter = new ArrayAdapter<CharSequence>(this, R.layout.simple_spinner_dropdown_item_light, spinnerArray);
+		List<CharSequence> surfaceSpinnerArray = new ArrayList<CharSequence>();
+		surfaceDefineSpinnerAdapter = new ArrayAdapter<CharSequence>(this, R.layout.simple_spinner_dropdown_item_light, surfaceSpinnerArray);
 		surfaceDefineSpinner.setAdapter(surfaceDefineSpinnerAdapter);
 		surfaceDefineSpinner.setOnItemSelectedListener( new surfaceDefineListener());
-		surfaceDefineSpinnerAdapter.add("Select");
+		surfaceDefineSpinnerAdapter.add(Model3D.DEFINE_SURFACE_DEFAULT);
+		
+		//Reference to elementDefineSpinner and assign adapter
+		item = menu.findItem(R.id.action_element_define);
+		v = item.getActionView();
+		elementDefineSpinner = (Spinner)v.findViewById(R.id.element_define_spinner);
+		List<CharSequence> elementSpinnerArray = new ArrayList<CharSequence>();
+		elementDefineSpinnerAdapter = new ArrayAdapter<CharSequence>(this, R.layout.simple_spinner_dropdown_item_light, elementSpinnerArray);
+		elementDefineSpinner.setAdapter(elementDefineSpinnerAdapter);
+		elementDefineSpinner.setOnItemSelectedListener( new elementDefineListener());
+		elementDefineSpinnerAdapter.add(Model3D.DEFINE_ELEMENT_DEFAULT);
 		
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -147,25 +161,57 @@ public class MainActivity extends Activity {
 		int id = item.getItemId();
 		switch (id)
 		{
-		case R.id.action_accept:
+		case R.id.action_commit:
+			Toast.makeText(context, "Commited: Id=" + Integer.toString(model3DList.size()),Toast.LENGTH_SHORT).show();
+			Model3D commited = new Model3D(model3D);
+			model3DList.add(commited);
+			break;
 			
+		
 			
+		case R.id.action_undo:			
+			if (isModelChanged)
+			{
+				if (model3DList.size()>=1)
+				{
+					Toast.makeText(context, "Restored: Id=" + Integer.toString(model3DList.size()-1),Toast.LENGTH_SHORT).show();
+					glSurfaceView.queueEvent(new Runnable() {						
+						@Override
+						public void run() {
+							model3D = new Model3D (model3DList.get(model3DList.size()-1));
+							isModelChanged = false;
+							model3D.refreshAllBuffer();
+							renderer.setModel3D(model3D);
+							
+						}
+					});															
+				}				
+			}
+			else
+			{
+				if (model3DList.size()>=2)
+				{
+					Toast.makeText(context, "Restored: Id=" + Integer.toString(model3DList.size()-2),Toast.LENGTH_SHORT).show();
+					glSurfaceView.queueEvent(new Runnable() {						
+						@Override
+						public void run() {
+							model3D = new Model3D (model3DList.get(model3DList.size()-2));
+							isModelChanged = false;
+							model3DList.remove(model3DList.size()-1);
+							model3D.refreshAllBuffer();
+							renderer.setModel3D(model3D);							
+						}
+					});				
+				}
+			}				
 			break;
 			
 		case R.id.action_cancel:
-			model3D.clear();
-			glSurfaceView.queueEvent(new Runnable() {				
-				@Override
-				public void run() {
-					model3D.refreshAllBuffer();										
-				}
-			});
-			break;
-			
-		case R.id.action_undo:
+			Toast.makeText(context, "Cancel",Toast.LENGTH_SHORT).show();
 			break;
 			
 		case R.id.action_save:
+			Toast.makeText(context, "Save",Toast.LENGTH_SHORT).show();
 			break;
 			
 		case R.id.action_settings:
@@ -180,26 +226,12 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	
-	//
-	//procedures
-	
-	
-	
 	void openSettingsActivity()
 	{
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);		
 	}
-	
-	
-	
 
-	
-	//	
-	//event listeners
-	
-	
 	View.OnTouchListener onTouchListener = new View.OnTouchListener() {
 		
 		@Override
@@ -279,13 +311,12 @@ public class MainActivity extends Activity {
 				List<Vec2> curve = new ArrayList<Vec2>();
 				for (int i=0;i<stroke.size();i++)
 				{
-					if (i%2==0)
-					{
-						Vec2 addr = model3D.getActiveSurface().findRayIntersection(stroke.get(i), renderer.getMVP());
-						curve.add(addr);
-					}
+					ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
+					Vec2 addr = s.findRayIntersection(stroke.get(i), renderer.getMVP());
+					curve.add(addr);
 				}
 				model3D.addCurve(curve);
+				isModelChanged = true;
 				
 				glSurfaceView.queueEvent(new Runnable() {					
 					@Override
@@ -375,13 +406,13 @@ public class MainActivity extends Activity {
 
 			
 			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
-			ModelElement elem = model3D.getElementByScreenPosition(p, glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
+			UUID elem = model3D.getElementByScreenPosition(p, glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
 			if (elem != null){
 				if (model3D.isSelected(elem)){
-					model3D.unselect(elem);
+					model3D.unselectElement(elem);
 				}
 				else{
-					model3D.select(elem);
+					model3D.selectElement(elem);
 				}
 			}	
 			
@@ -395,16 +426,14 @@ public class MainActivity extends Activity {
 			
 			
 			surfaceDefineSpinnerAdapter.clear();			
-			surfaceDefineSpinnerAdapter.add("Select");
+			surfaceDefineSpinnerAdapter.add(Model3D.DEFINE_SURFACE_DEFAULT);
 			
 			List<String> defs = model3D.getPossibleSurfaceDefinitions();
 			surfaceDefineSpinner.setSelection(0);
 			for (int i=0;i<defs.size();i++)
 			{
 				surfaceDefineSpinnerAdapter.add(defs.get(i));						
-			}			
-								
-		
+			}	
 
 			return true;
 		}	
@@ -413,8 +442,10 @@ public class MainActivity extends Activity {
 		@Override
 		public boolean onDoubleTap(final MotionEvent e) {
 			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
-			Vec2 mapped = model3D.getActiveSurface().findRayIntersection(p, renderer.getMVP());
+			ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
+			Vec2 mapped = s.findRayIntersection(p, renderer.getMVP());
 			model3D.addPoint(mapped);
+			isModelChanged = true;
 			glSurfaceView.queueEvent(new Runnable() {
 				
 				@Override
@@ -433,8 +464,7 @@ public class MainActivity extends Activity {
 		}
 		
 	};
-	
-	
+		
 	class surfaceDefineListener implements OnItemSelectedListener{
 
 		@Override
@@ -444,7 +474,42 @@ public class MainActivity extends Activity {
 			
 			final String str = (String)parent.getItemAtPosition(position);
 			
-			model3D.changeActiveSurface(str);
+			model3D.defineActiveSurface(str);
+			if (str != Model3D.DEFINE_SURFACE_DEFAULT){
+				model3D.unselectAll();
+				surfaceDefineSpinnerAdapter.clear();			
+				surfaceDefineSpinnerAdapter.add(Model3D.DEFINE_SURFACE_DEFAULT);
+				surfaceDefineSpinnerAdapter.notifyDataSetChanged();
+			}
+			
+			
+			
+			glSurfaceView.queueEvent(new Runnable() {				
+				@Override
+				public void run() {
+					model3D.refreshAllBuffer();
+				}
+			});						
+		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> parent) {			
+		}
+		
+	};
+	
+	class elementDefineListener implements OnItemSelectedListener{
+
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view,
+				int position, long id) {
+			
+			final String str = (String)parent.getItemAtPosition(position);
+			
+			model3D.defineActiveSurface(str);
+			if (str != Model3D.DEFINE_ELEMENT_DEFAULT){
+
+			}
 			
 			glSurfaceView.queueEvent(new Runnable() {				
 				@Override

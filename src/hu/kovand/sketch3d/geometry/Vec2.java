@@ -2,6 +2,9 @@ package hu.kovand.sketch3d.geometry;
 
 import java.util.List;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 public class Vec2 {
 	
 	private float x;
@@ -18,6 +21,7 @@ public class Vec2 {
 		this.x = x;
 		this.y = y;
 	}
+	
 	
 	public float getX(){
 		return x;
@@ -74,6 +78,7 @@ public class Vec2 {
 	{
 		return length(subtract(a, b));
 	}
+
 	
 
 }

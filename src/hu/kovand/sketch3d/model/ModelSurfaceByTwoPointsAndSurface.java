@@ -1,23 +1,25 @@
 package hu.kovand.sketch3d.model;
 
-import android.opengl.Matrix;
-import android.util.Log;
-import hu.kovand.sketch3d.geometry.Vec2;
-import hu.kovand.sketch3d.geometry.Vec3;
-import hu.kovand.sketch3d.graphics.GLRenderer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class ModelSurfaceByTwoPointsAndSurface extends ModelWithOrigAndTwoBase {
+import hu.kovand.sketch3d.geometry.Vec3;
+import hu.kovand.sketch3d.graphics.Model3D;
+
+
+public class ModelSurfaceByTwoPointsAndSurface extends ModelSurfaceWithOrigAndTwoBase {
 	
 	//orig: point1 
 	//base1: point2-point1
 	//base2: parent.base1 cross parent.base1
 	
-	ModelPoint point1;
-	ModelPoint point2;
-	ModelWithOrigAndTwoBase surface;
+	UUID point1;
+	UUID point2;
+	UUID surface;
 
-	public ModelSurfaceByTwoPointsAndSurface(ModelPoint p1,ModelPoint p2,ModelWithOrigAndTwoBase s) {
-		super();
+	public ModelSurfaceByTwoPointsAndSurface(Model3D m,UUID p1,UUID p2,UUID s) {
+		super(m);
 		point1 = p1;
 		point2 = p2;
 		surface = s;
@@ -26,17 +28,23 @@ public class ModelSurfaceByTwoPointsAndSurface extends ModelWithOrigAndTwoBase {
 
 	@Override
 	Vec3 getOrig() {
-		return point1.evaluate();
+		ModelPoint p1 = (ModelPoint)(getModel().getElementById(point1));
+		return p1.evaluate();
 	}
 
 	@Override
 	Vec3 getBaseVec1() {
-		return Vec3.subtract(point2.evaluate(), point1.evaluate());
+		ModelPoint p1 = (ModelPoint)(getModel().getElementById(point1));
+		ModelPoint p2 = (ModelPoint)(getModel().getElementById(point2));
+		return Vec3.subtract(p2.evaluate(), p1.evaluate());
 	}
 
 	@Override
 	Vec3 getBaseVec2() {
-		return Vec3.crossProduct(Vec3.subtract(point2.evaluate(), point1.evaluate()), surface.getBaseVec1());
+		ModelPoint p1 = (ModelPoint)(getModel().getElementById(point1));
+		ModelPoint p2 = (ModelPoint)(getModel().getElementById(point2));
+		ModelSurfaceWithOrigAndTwoBase s = (ModelSurfaceWithOrigAndTwoBase)(getModel().getElementById(surface));
+		return Vec3.crossProduct(Vec3.subtract(p2.evaluate(), p1.evaluate()), s.getBaseVec1());
 	}
 	@Override
 	public int getSubType() {
@@ -52,6 +60,14 @@ public class ModelSurfaceByTwoPointsAndSurface extends ModelWithOrigAndTwoBase {
 		}
 		else return false;
 		
+	}
+	
+	@Override
+	public List<UUID> getExtraPoints() {
+		List<UUID> arr = new ArrayList<UUID>();
+		arr.add(point1);
+		arr.add(point2);
+		return arr;
 	}
 	
 	

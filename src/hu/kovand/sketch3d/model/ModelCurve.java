@@ -2,29 +2,29 @@ package hu.kovand.sketch3d.model;
 
 import hu.kovand.sketch3d.geometry.PolyLine;
 import hu.kovand.sketch3d.geometry.Vec2;
+import hu.kovand.sketch3d.graphics.Model3D;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.UUID;
 
-import android.graphics.PointF;
-import android.os.PowerManager;
+
 
 public class ModelCurve extends ModelElement {
 	
 	
 	
-	ModelSurface parent;
+	UUID parent;
 	List<Vec2> points;
 	
 	//optional relations
-	ModelPoint startPoint = null;
-	ModelPoint endPoint = null;
+	UUID attachedToStart;
+	UUID attachedToEnd;
 	
 	
 
-	public ModelCurve(ModelSurface parent,List<Vec2> points) {
-		super();
+	public ModelCurve(Model3D m,UUID parent,List<Vec2> points) {
+		super(m);
 		this.parent = parent;
 		this.points = points;
 	}
@@ -36,17 +36,20 @@ public class ModelCurve extends ModelElement {
 		PolyLine result = new PolyLine();
 		for (int i=0;i<points.size();i++)
 		{
-			result.add(parent.evaluate(points.get(i)));						
+			result.add(((ModelSurface)getModel().getElementById(parent)).evaluate(points.get(i)));						
 		}		
 		return result;
 	}
 	
-	public void setParent(ModelSurface p)
+	public void setParent(UUID p)
 	{
 		parent = p;
 	}
 	
-	public ModelSurface getParent(){
+
+
+
+	public UUID getParent(){
 		return parent;
 	}
 	
@@ -66,7 +69,6 @@ public class ModelCurve extends ModelElement {
 	public int getSubType() {
 		return SUBTYPE_CURVE_COMMON;
 	}
-	
 	
 
 }

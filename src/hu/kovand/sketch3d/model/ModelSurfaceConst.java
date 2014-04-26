@@ -1,20 +1,20 @@
 package hu.kovand.sketch3d.model;
 
-import android.opengl.Matrix;
-import android.util.Log;
-import hu.kovand.sketch3d.geometry.Vec2;
-import hu.kovand.sketch3d.geometry.Vec3;
-import hu.kovand.sketch3d.geometry.Vec4;
-import hu.kovand.sketch3d.graphics.GLRenderer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class ModelSurfaceConst extends ModelWithOrigAndTwoBase {
+import hu.kovand.sketch3d.geometry.Vec3;
+import hu.kovand.sketch3d.graphics.Model3D;
+
+public class ModelSurfaceConst extends ModelSurfaceWithOrigAndTwoBase {
 	
 	Vec3 orig;
 	Vec3 v1;
 	Vec3 v2;
 
-	public ModelSurfaceConst(Vec3 orig, Vec3 v1,Vec3 v2) {
-		super();
+	public ModelSurfaceConst(Model3D m,Vec3 orig, Vec3 v1,Vec3 v2) {
+		super(m);
 		this.orig = orig;
 		this.v1 = v1;
 		this.v2 = v2;
@@ -42,5 +42,11 @@ public class ModelSurfaceConst extends ModelWithOrigAndTwoBase {
 	@Override
 	public int getSubType() {
 		return SUBTYPE_SURFACE_CONST;
+	}
+	
+	@Override
+	public List<UUID> getExtraPoints() {
+		List<UUID> arr = new ArrayList<UUID>();
+		return arr;
 	}
 }

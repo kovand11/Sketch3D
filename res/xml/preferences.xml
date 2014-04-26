@@ -2,9 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
         android:key="pref_sync"
-        android:title="@string/action_accept"
-        android:summary="@string/action_accept"
-        android:defaultValue="true" />    
+        android:defaultValue="true" /> 
     
 
 </PreferenceScreen>

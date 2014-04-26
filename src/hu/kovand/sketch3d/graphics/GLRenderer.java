@@ -49,7 +49,8 @@ public class GLRenderer implements Renderer {
     private static final float[] SELECTED_POINT_COLOR = {  0.7f ,0.1f ,0.1f ,0.9f};//dark red
     private static final float[] SELECTED_CURVE_COLOR = { 0.8f ,0.1f ,0.1f ,0.9f}; //dark red
     private static final float[] ACTIVE_POINT_COLOR = { 0.1f ,0.3f ,0.7f ,0.7f};
-    private static final float[] ACTIVE_CURVE_COLOR = { 0.1f ,0.3f ,0.9f ,0.7f};    
+    private static final float[] ACTIVE_CURVE_COLOR = { 0.1f ,0.3f ,0.9f ,0.7f}; 
+    private static final float[] EXTRA_POINT_COLOR = { 0.1f ,0.6f ,0.1f ,0.7f};
     private static final float[] PASSIVE_POINT_COLOR = { 0.05f ,0.05f ,0.05f ,0.8f};
     private static final float[] PASSIVE_CURVE_COLOR = { 0.1f ,0.1f ,0.1f ,0.8f};
     private static final float[] SURFACE_BOARDER_COLOR = { 0.0f ,0.0f ,0.0f ,0.1f};
@@ -256,6 +257,23 @@ public class GLRenderer implements Renderer {
             GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, size);
             GLES20.glDisableVertexAttribArray(aPositionLocation);        	
         }
+        
+        //EXTRA POINTS
+        vertexDataList = model3D.getExtraPointsVertexBufferList();
+        //fixed size
+        for (int i=0;i<vertexDataList.size();i++)
+        {
+        	vertexData = vertexDataList.get(i);
+        	vertexData.position(0);
+    		GLES20.glEnableVertexAttribArray(aPositionLocation);
+            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
+            GLES20.glUniform4fv(uColorLocation, 1, EXTRA_POINT_COLOR , 0);        
+            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, Vec3Renderable.VERTEX_PER_POINT);
+            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
+        }
+        
+        
         
         //passive points
         //
