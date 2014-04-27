@@ -21,11 +21,12 @@ public class ModelPoint extends ModelElement {
 		address = addr;
 	}
 	
-	public ModelPoint (Parcel p)
-	{
-		super(p.readString());
-		address = p.readParcelable(null);
+	public ModelPoint(ModelPoint p,Vec2 newAddress)	{
+		super(p.getModel(),p.getId());
+		parent = p.getParent();
+		address = newAddress;
 	}
+
 	
 	public Vec3 evaluate()
 	{

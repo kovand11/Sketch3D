@@ -24,12 +24,13 @@ abstract public class ModelElement {
 	private Model3D model;
 	
 	public ModelElement(Model3D m) {
-		id = UUID.randomUUID();
 		model = m;
+		id = UUID.randomUUID();		
 	}
 	
-	public ModelElement(String uuid){
-		this.id = UUID.fromString(uuid);
+	public ModelElement(Model3D m,UUID id){
+		model = m;
+		this.id = id;
 	}
 	
 	public UUID getId(){

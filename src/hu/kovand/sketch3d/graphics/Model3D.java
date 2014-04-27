@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import android.graphics.AvoidXfermode.Mode;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -271,7 +272,7 @@ public class Model3D {
 		{
 			if (elem.getType() == ModelElement.TYPE_POINT)
 			{
-				if (!activeExtraList.contains(elem.getId()))
+				if (!activeExtraList.contains(elem.getId()) && !selectedList.contains(elem.getId()) )
 				{
 					ModelPoint p = (ModelPoint)elem;
 					FloatBuffer buff = (new Vec3Renderable(p.evaluate())).getVertexBuffer();
@@ -596,6 +597,40 @@ public class Model3D {
 		}
 		return null;
 	}
+
+	
+	public List<ModelElement> exportActiveSurfaceAndDelete()
+	{		
+		List<ModelElement> arr = new ArrayList<ModelElement>();
+		for (ModelElement elem : elementList)
+		{
+			if (elem.getType() == ModelElement.TYPE_POINT)
+			{
+				ModelPoint p = (ModelPoint)elem;
+				if (p.getParent() == activeSurface){
+					arr.add(elem);
+				}
+			}
+			
+			if (elem.getType() == ModelElement.TYPE_CURVE)
+			{
+				ModelCurve c = (ModelCurve)elem;
+				if (c.getParent() == activeSurface){
+					arr.add(elem);
+				}
+			}			
+		}
+		
+		elementList.removeAll(arr);
+		return arr;
+	}
+	
+	public void importActiveSurface(List<ModelElement> elems)
+	{
+		elementList.addAll(elems);
+	}
+	
+	
 	
 	
 	

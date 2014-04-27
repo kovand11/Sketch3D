@@ -194,6 +194,7 @@ public class GLRenderer implements Renderer {
 
 		//GesureHandler
 		//
+		strokeHandler.updateBuffer();
 		vertexData = strokeHandler.getVertexBuffer();
 		size = strokeHandler.size();
 		//		

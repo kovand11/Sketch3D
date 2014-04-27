@@ -21,6 +21,7 @@ public class StrokeHandler {
 
 	public static int RESERVE_SIZE = 100;
 	public static int MIN_POINT_COUNT = 15;
+	public static int REFRESH_SIZE = 5;
 	
 	
 	List<Vec2> curve;
@@ -50,7 +51,7 @@ public class StrokeHandler {
 		Vec2 p = new Vec2(event.getX()/v.getWidth()*2.0f-1.0f, 1.0f-event.getY()/v.getHeight()*2.0f);		
 		switch (action) {
 		case MotionEvent.ACTION_DOWN:
-			renderable.add(new Vec3(p.getX(), p.getY(), 1.0f));
+			//renderable.add(new Vec3(p.getX(), p.getY(), 1.0f));
 			curve.add(p);
 			if (listener!=null){
 				listener.onStrokeBegin(p);		
@@ -68,13 +69,13 @@ public class StrokeHandler {
 		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_CANCEL:
 		case MotionEvent.ACTION_OUTSIDE:
-			renderable.add(new Vec3(p.getX(), p.getY(), 0.0f));
+			//renderable.add(new Vec3(p.getX(), p.getY(), 0.0f));
 			curve.add(p);
 			if (listener!=null){
 				listener.onStrokeEnd(curve,curve.size()>=MIN_POINT_COUNT);
 			}
 			renderable = new PolyLineRenderable(RESERVE_SIZE);
-			curve.clear();
+			curve = new ArrayList<Vec2>();
 			break;
 
 		default:
@@ -95,6 +96,17 @@ public class StrokeHandler {
 		void onStrokeEnd(List<Vec2> stroke,boolean valid);
 	}
 	
-	
+	public void updateBuffer()
+	{
+		for (int i=renderable.size();i<curve.size();i++)
+		{
+			try{
+			renderable.add(new Vec3(curve.get(i).getX(), curve.get(i).getY(), 0.0f));
+			}
+			catch(IndexOutOfBoundsException e){				
+			}
+			
+		}
+	}
 
 }

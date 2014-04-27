@@ -1,16 +1,18 @@
 package hu.kovand.sketch3d.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import hu.kovand.sketch3d.R;
 import hu.kovand.sketch3d.geometry.Vec2;
 import hu.kovand.sketch3d.graphics.GLRenderer;
 import hu.kovand.sketch3d.graphics.Model3D;
-import hu.kovand.sketch3d.model.ModelElement;
+import hu.kovand.sketch3d.graphics.ModelOverlay;
+import hu.kovand.sketch3d.model.ModelCurve;
 import hu.kovand.sketch3d.model.ModelSurface;
 import hu.kovand.sketch3d.utility.StrokeHandler;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -19,7 +21,6 @@ import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +46,7 @@ public class MainActivity extends Activity {
 	GLRenderer renderer;		
 
 	Model3D model3D; List<Model3D> model3DList;	boolean isModelChanged;
+	ModelOverlay modelOverlay;
 	private GestureDetector fingerDetector;
 	private GestureDetector penDetector;
 	private StrokeHandler strokeHandler;
@@ -97,6 +99,7 @@ public class MainActivity extends Activity {
 		penDetector = new GestureDetector(context,new PenGestureListener());
 		fingerScaleGestureDetector = new ScaleGestureDetector(context,fingerScaleGestureListener);
 		model3DList = new ArrayList<Model3D>();
+		modelOverlay = new ModelOverlay();
 		
 		isModelChanged = false;
 
@@ -175,14 +178,13 @@ public class MainActivity extends Activity {
 				if (model3DList.size()>=1)
 				{
 					Toast.makeText(context, "Restored: Id=" + Integer.toString(model3DList.size()-1),Toast.LENGTH_SHORT).show();
+					model3D = new Model3D (model3DList.get(model3DList.size()-1));
+					isModelChanged = false;
 					glSurfaceView.queueEvent(new Runnable() {						
 						@Override
 						public void run() {
-							model3D = new Model3D (model3DList.get(model3DList.size()-1));
-							isModelChanged = false;
 							model3D.refreshAllBuffer();
-							renderer.setModel3D(model3D);
-							
+							renderer.setModel3D(model3D);							
 						}
 					});															
 				}				
@@ -192,12 +194,12 @@ public class MainActivity extends Activity {
 				if (model3DList.size()>=2)
 				{
 					Toast.makeText(context, "Restored: Id=" + Integer.toString(model3DList.size()-2),Toast.LENGTH_SHORT).show();
+					model3D = new Model3D (model3DList.get(model3DList.size()-2));
+					isModelChanged = false;
+					model3DList.remove(model3DList.size()-1);
 					glSurfaceView.queueEvent(new Runnable() {						
 						@Override
 						public void run() {
-							model3D = new Model3D (model3DList.get(model3DList.size()-2));
-							isModelChanged = false;
-							model3DList.remove(model3DList.size()-1);
 							model3D.refreshAllBuffer();
 							renderer.setModel3D(model3D);							
 						}
@@ -305,25 +307,26 @@ public class MainActivity extends Activity {
 	StrokeHandler.onStrokeListener strokeListener = new StrokeHandler.onStrokeListener() {
 		
 		@Override
-		public void onStrokeEnd(List<Vec2> stroke, boolean valid) {
+		public void onStrokeEnd(final List<Vec2> stroke, boolean valid) {
 			if (valid)
 			{
-				List<Vec2> curve = new ArrayList<Vec2>();
-				for (int i=0;i<stroke.size();i++)
-				{
-					ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
-					Vec2 addr = s.findRayIntersection(stroke.get(i), renderer.getMVP());
-					curve.add(addr);
-				}
-				model3D.addCurve(curve);
+				
 				isModelChanged = true;
 				
-				glSurfaceView.queueEvent(new Runnable() {					
+				final ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
+				
+				glSurfaceView.queueEvent(new Runnable() {
+					
 					@Override
 					public void run() {
-						model3D.refreshAllBuffer();						
+						modelOverlay.importSurface(model3D, s, model3D.exportActiveSurfaceAndDelete(), renderer.getMVP(), glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2);
+						modelOverlay.addCurve(stroke);
+						model3D.importActiveSurface(modelOverlay.exportSurface());
+						model3D.refreshAllBuffer();
+						
 					}
 				});
+				
 			}
 			
 		}
@@ -441,20 +444,21 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public boolean onDoubleTap(final MotionEvent e) {
-			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
-			ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
-			Vec2 mapped = s.findRayIntersection(p, renderer.getMVP());
-			model3D.addPoint(mapped);
+			final Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
+			final ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
+			
 			isModelChanged = true;
-			glSurfaceView.queueEvent(new Runnable() {
-				
+			
+			glSurfaceView.queueEvent(new Runnable() {				
 				@Override
 				public void run() {
-					model3D.refreshAllBuffer();
-					
+					modelOverlay.importSurface(model3D, s, model3D.exportActiveSurfaceAndDelete(), renderer.getMVP(), glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2);
+					modelOverlay.addPoint(p);
+					model3D.importActiveSurface( modelOverlay.exportSurface());
+					model3D.refreshAllBuffer();					
 				}
 			});
-			return true;
+			return true;			
 		}
 		
 		@Override
@@ -480,10 +484,7 @@ public class MainActivity extends Activity {
 				surfaceDefineSpinnerAdapter.clear();			
 				surfaceDefineSpinnerAdapter.add(Model3D.DEFINE_SURFACE_DEFAULT);
 				surfaceDefineSpinnerAdapter.notifyDataSetChanged();
-			}
-			
-			
-			
+			}			
 			glSurfaceView.queueEvent(new Runnable() {				
 				@Override
 				public void run() {
