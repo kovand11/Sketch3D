@@ -87,34 +87,9 @@ public class Model3D {
 		}
 	}
 	
-	public void addPoint(Vec2 addr)
-	{
-
-		ModelPoint p = new ModelPoint(this,activeSurface ,addr);
-		elementList.add(p);
-	}
 	
-	public void addCurve(List<Vec2> addrs)
-	{
-		List<Vec3> list = new ArrayList<Vec3>();
-		for (int i=0;i<addrs.size();i++)
-		{
-			list.add(new Vec3(addrs.get(i).getX(), addrs.get(i).getY(), 0.0f));						
-		}
-		BSpline bspline = new BSpline();
-		bspline.approximate(new PolyLine(list), 3, 10);
-		PolyLine l = bspline.evaluateN(50);
-		
-		List<Vec2> bspline2d = new ArrayList<Vec2>();
-		for (int i=0;i<l.size();i++){
-			bspline2d.add(new Vec2(l.get(i).getX(), l.get(i).getY()));
-		}
-		//TODO
-		
-		ModelCurve c = new ModelCurve(this, activeSurface, bspline2d);
-		elementList.add(c);
-		
-	}
+	
+	
 	
 	//SELECTED (all in selectedList)
 	
@@ -344,7 +319,6 @@ public class Model3D {
 		int closest = Vec2.findClosest(screenPointList, sp, lx, ly);
 		if (closest>=0){
 			Vec2 distVec = Vec2.subtract(screenPointList.get(closest),sp);
-			//TODO simplify
 			float dist = (float)Math.sqrt(distVec.getX()*distVec.getX()*lx*lx+distVec.getY()*distVec.getY()*ly*ly);
 			if (dist<Constants.SELECT_DISTANCE)
 				return pointList.get(closest).getId();
@@ -628,6 +602,26 @@ public class Model3D {
 	public void importActiveSurface(List<ModelElement> elems)
 	{
 		elementList.addAll(elems);
+	}
+	
+	
+	
+	
+	public static Vec2 mapToScreenNorm(Vec3 modelPos,float [] mvp)
+	{		
+		float[] screen3D = new float[4];
+		Matrix.multiplyMV(screen3D, 0, mvp, 0,(new Vec4(modelPos)).toArray(), 0);
+		Vec2 screen = new Vec2(screen3D[0]/screen3D[3],screen3D[1]/screen3D[3]);
+		return screen;
+	}
+	
+	public static List<Vec2> mapToScreenNorm(List<Vec3> modelPosList,float [] mvp)
+	{
+		List<Vec2> arr = new ArrayList<Vec2>();
+		for (Vec3 p : modelPosList){
+			arr.add(mapToScreenNorm(p, mvp));
+		}
+		return arr;
 	}
 	
 	

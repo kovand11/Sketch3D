@@ -86,10 +86,7 @@ public class BSpline {
 	 */
 	public void approximateAdaptive(PolyLine curve,int step,float error)
 	{
-		//float length = MyMath.length(curve.getPoints());
-		
-		
-						
+		//TODO implement
 	}
 	
 	/** Evaluates the b-spline with n points

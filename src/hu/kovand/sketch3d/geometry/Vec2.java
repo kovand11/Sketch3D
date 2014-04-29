@@ -31,6 +31,7 @@ public class Vec2 {
 		return y;
 	}
 	
+	
 	public static int findClosest(List<Vec2> list,Vec2 p,float lx,float ly)
 	{
 		float min = Float.MAX_VALUE;
@@ -78,6 +79,24 @@ public class Vec2 {
 	{
 		return length(subtract(a, b));
 	}
+	
+	public static float distance(Vec2 a,Vec2 b,float lx,float ly)
+	{
+		return length(new Vec2((a.getX()-b.getX())*lx,(a.getY()-b.getY())*ly));
+	}
+	
+	@Override
+	public String toString() {
+		return "( " + Float.toString(x) + " " +Float.toString(y) + " )";
+	}
+	
+	public static Vec2 weightedAdd(Vec2 p1,float w1,Vec2 p2,float w2)
+	{
+		float x = (w1*p1.getX()+w2*p2.getX());
+		float y = (w1*p1.getY()+w2*p2.getY());		
+		return new Vec2(x, y);
+	}
+	
 
 	
 

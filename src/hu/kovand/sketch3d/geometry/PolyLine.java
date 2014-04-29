@@ -72,7 +72,7 @@ public class PolyLine {
 		for (int i=0;i<b.size();i++)
 		{			
 			float t= (1.0f*i)/(b.size()-1);
-			float weight = MyMath.weightFunction(t, 0.5f, 0.6f);
+			float weight = MyMath.weightFunctionOld(t, 0.5f, 0.6f);
 			Vec3 p1 = a.get(projected_indexes.get(i));
 			Vec3 p2 = b.get(i);
 			Vec3 p = Vec3.weightedAdd(p1, 1-weight, p2, weight);			

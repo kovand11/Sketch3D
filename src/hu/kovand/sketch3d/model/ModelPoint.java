@@ -13,7 +13,7 @@ import android.os.Parcel;
 public class ModelPoint extends ModelElement {
 	
 	UUID parent;
-	Vec2 address;
+	Vec2 address;	
 
 	public ModelPoint(Model3D m,UUID p ,Vec2 addr) {
 		super(m);

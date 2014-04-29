@@ -1,5 +1,7 @@
 package hu.kovand.sketch3d.geometry;
 
+import android.opengl.Matrix;
+
 public class Vec4 {
 	
 	private float x;
@@ -107,6 +109,14 @@ public class Vec4 {
 		float z = p.getZ() * a;
 		float t = p.getT();
 		return new Vec4(x, y, z, t);
+	}
+	
+	public static Vec4 multipleMV(Vec4 v,float [] mat)
+	{
+		float[] res = new float[4];
+		Matrix.multiplyMV(res, 0, mat, 0, v.toArray(), 0);
+		return new Vec4(res);
+		
 	}
 	
 	public static float lengthAsNorm(Vec4 p)

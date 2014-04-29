@@ -96,14 +96,22 @@ public class MyMath {
 		}		
 		return index;
 	}
-	
-	public static float weightFunction(float t,float qw,float hw)
+	@Deprecated
+	public static float weightFunctionOld(float t,float qw,float hw)
 	{		
 		return (-48.0f*hw + 113.777778f*qw)*t*t + 
 				   (352.0f*hw - 682.66667f*qw)*t*t*t + 
 				   (-816.0f*hw + 1479.11111f*qw)*t*t*t*t + 
 				   (768.0f*hw - 1365.33333f*qw)*t*t*t*t*t + 
 				   (-256.0f*hw + 455.11111f*qw)*t*t*t*t*t*t;	
+	}
+	
+	public static float weightFunction(float t,float startWeight,float midWeight,float endWeight)
+	{
+		return startWeight + (1.0f - 5.0f*endWeight + 16.0f*midWeight - 
+			      11.0f*startWeight)*t*t + 
+			      (-3.0f + 14.0f*endWeight - 32.0f*midWeight + 18.0f*startWeight)*t*t*t + 
+			      (2.0f - 8.0f*endWeight + 16.0f*midWeight - 8.0f*startWeight)*t*t*t*t;
 	}
 	
 	public static List<IntersectionAddress> findIntersections(List<Vec3> l1,List<Vec3> l2)
