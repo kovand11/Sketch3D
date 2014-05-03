@@ -1,8 +1,8 @@
 Todo:
 -implement two finger rotate
--give min length for stoke
+-check undo and refreshBuffer()
 
 Bug:
--curve select parent does not work
+
 
 

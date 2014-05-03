@@ -43,6 +43,11 @@ public class Model3D {
 	public static final String DEFINE_ELEMENT_DEFAULT = "Select..";
 	public static final String DEFINE_ELEMENT_LINE = "Line";
 	
+	public static final int REFRESH_BUFFER_ALL = 0;
+	public static final int REFRESH_BUFFER_POINT_SELECT = 1;
+	public static final int REFRESH_BUFFER_CURVE_SELECT = 2;
+	public static final int REFRESH_BUFFER_POINT_ADD = 3;
+	public static final int REFRESH_BUFFER_CURVE_ADD = 4;
 	
 	
 	
@@ -74,7 +79,7 @@ public class Model3D {
 		activeSurface = base.getId();
 		selectedList = new ArrayList<UUID>();
 		
-		refreshAllBuffer();
+		refreshBuffer(REFRESH_BUFFER_ALL);
 	}
 	
 	/**
@@ -498,12 +503,6 @@ public class Model3D {
 		
 	public void defineActiveSurface(String mode)
 	{
-		
-		/*ModelSurfaceByTwoPointsAndSurface newSurf = new ModelSurfaceByTwoPointsAndSurface((ModelPoint)(selectedList.get(0)), (ModelPoint)(selectedList.get(1)),(ModelWithOrigAndTwoBase)(((ModelPoint)(selectedList.get(0))).getParent()) );
-		surfaceList.add(newSurf);
-		activeSurface = newSurf;*/
-		
-
 		if ( mode == DEFINE_SURFACE_PARENT )
 		{
 			ModelElement elem = getElementById(selectedList.get(0));
@@ -543,8 +542,6 @@ public class Model3D {
 		}
 		else if ( mode == DEFINE_SURFACE_3POINTS )
 		{
-			/*ModelSurfaceByThreePoints newSurf = new ModelSurfaceByThreePoints(this,(ModelPoint)(selectedList.get(0)),
-					(ModelPoint)(selectedList.get(1)),(ModelPoint)(selectedList.get(2)));*/
 			ModelSurfaceByThreePoints newSurf = new ModelSurfaceByThreePoints(this, selectedList.get(0), selectedList.get(1), selectedList.get(2));
 			boolean selected = false;
 			for (ModelElement elem : elementList)
@@ -601,23 +598,34 @@ public class Model3D {
 		}
 	}
 	
-	public void refreshAllBuffer()
+	public void refreshBuffer(int mode)
 	{
-		refreshSelectedPointsVertexBufferList();
-		refreshSelectedCurvesVertexBufferAndSizeList();
-		
-		//
-		//
-		refreshExtraPointsVertexBufferList();
-		
-		
-		refreshActivePointsVertexBufferList();
-		refreshActiveCurvesVertexBufferAndSizeList();
-
-		
-		refreshPassivePointsVertexBufferList();
-		refreshPassiveCurvesVertexBufferAndSizeList();
-
+		if (mode == REFRESH_BUFFER_ALL){
+			refreshSelectedPointsVertexBufferList();
+			refreshSelectedCurvesVertexBufferAndSizeList();		
+			refreshExtraPointsVertexBufferList();		
+			refreshActivePointsVertexBufferList();
+			refreshActiveCurvesVertexBufferAndSizeList();		
+			refreshPassivePointsVertexBufferList();
+			refreshPassiveCurvesVertexBufferAndSizeList();
+		}
+		else if (mode == REFRESH_BUFFER_POINT_SELECT){
+			refreshSelectedPointsVertexBufferList();
+			refreshExtraPointsVertexBufferList();
+			refreshActivePointsVertexBufferList();
+			refreshPassivePointsVertexBufferList();
+			}
+		else if (mode == REFRESH_BUFFER_POINT_ADD){
+			refreshActivePointsVertexBufferList();						
+		}
+		else if (mode == REFRESH_BUFFER_CURVE_SELECT){
+			refreshSelectedCurvesVertexBufferAndSizeList();
+			refreshActiveCurvesVertexBufferAndSizeList();
+			refreshPassiveCurvesVertexBufferAndSizeList();
+		}
+		else if (mode == REFRESH_BUFFER_CURVE_ADD){
+			refreshActiveCurvesVertexBufferAndSizeList();			
+		}
 		
 		
 	}

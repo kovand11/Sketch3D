@@ -153,7 +153,7 @@ public class MainActivity extends Activity {
 		List<CharSequence> elementSpinnerArray = new ArrayList<CharSequence>();
 		elementDefineSpinnerAdapter = new ArrayAdapter<CharSequence>(this, R.layout.simple_spinner_dropdown_item_light, elementSpinnerArray);
 		elementDefineSpinner.setAdapter(elementDefineSpinnerAdapter);
-		elementDefineSpinner.setOnItemSelectedListener( new elementDefineListener());
+		//elementDefineSpinner.setOnItemSelectedListener( new elementDefineListener());
 		elementDefineSpinnerAdapter.add(Model3D.DEFINE_ELEMENT_DEFAULT);
 		
 		return super.onPrepareOptionsMenu(menu);
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
 					glSurfaceView.queueEvent(new Runnable() {						
 						@Override
 						public void run() {
-							model3D.refreshAllBuffer();
+							model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
 							renderer.setModel3D(model3D);							
 						}
 					});															
@@ -200,7 +200,7 @@ public class MainActivity extends Activity {
 					glSurfaceView.queueEvent(new Runnable() {						
 						@Override
 						public void run() {
-							model3D.refreshAllBuffer();
+							model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
 							renderer.setModel3D(model3D);							
 						}
 					});				
@@ -322,7 +322,7 @@ public class MainActivity extends Activity {
 						modelOverlay.importSurface(model3D, s, model3D.exportActiveSurfaceAndDelete(), renderer.getMVP(), glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2);
 						modelOverlay.addCurve(stroke);
 						model3D.importActiveSurface(modelOverlay.exportSurface());
-						model3D.refreshAllBuffer();
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_CURVE_ADD);
 						
 					}
 				});
@@ -410,10 +410,6 @@ public class MainActivity extends Activity {
 			
 			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
 			UUID elem = model3D.getElementByScreenPosition(p, glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
-			if (elem != null)
-				Toast.makeText(context, elem.toString(),Toast.LENGTH_SHORT).show();
-			else
-				Toast.makeText(context, "null",Toast.LENGTH_SHORT).show();
 			
 			if (elem != null){
 				if (model3D.isSelected(elem)){
@@ -428,7 +424,8 @@ public class MainActivity extends Activity {
 				
 				@Override
 				public void run() {
-					model3D.refreshAllBuffer();					
+					model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
+					//TODO consider distinguish point and curve
 				}
 			});
 			
@@ -460,7 +457,7 @@ public class MainActivity extends Activity {
 					modelOverlay.importSurface(model3D, s, model3D.exportActiveSurfaceAndDelete(), renderer.getMVP(), glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2);
 					modelOverlay.addPoint(p);
 					model3D.importActiveSurface( modelOverlay.exportSurface());
-					model3D.refreshAllBuffer();					
+					model3D.refreshBuffer(Model3D.REFRESH_BUFFER_POINT_ADD);					
 				}
 			});
 			return true;			
@@ -493,7 +490,7 @@ public class MainActivity extends Activity {
 			glSurfaceView.queueEvent(new Runnable() {				
 				@Override
 				public void run() {
-					model3D.refreshAllBuffer();
+					model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
 				}
 			});						
 		}
@@ -504,18 +501,15 @@ public class MainActivity extends Activity {
 		
 	};
 	
-	class elementDefineListener implements OnItemSelectedListener{
+	/*class elementDefineListener implements OnItemSelectedListener{
 
-		@Override
+		/*@Override
 		public void onItemSelected(AdapterView<?> parent, View view,
 				int position, long id) {
 			
 			final String str = (String)parent.getItemAtPosition(position);
 			
 			model3D.defineActiveSurface(str);
-			if (str != Model3D.DEFINE_ELEMENT_DEFAULT){
-
-			}
 			
 			glSurfaceView.queueEvent(new Runnable() {				
 				@Override
@@ -532,14 +526,7 @@ public class MainActivity extends Activity {
 			
 		}
 		
-	};
-	
-
-	
-	
-
-	
-	
+	};	*/
 
 
 			
