@@ -17,6 +17,7 @@ public class ModelCurve extends ModelElement {
 	
 	UUID parent;
 	List<Vec2> points;
+	int bSplineHint;
 	
 	//optional relations
 	UUID attachedToStart;
@@ -89,6 +90,13 @@ public class ModelCurve extends ModelElement {
 	@Override
 	public int getSubType() {
 		return SUBTYPE_CURVE_COMMON;
+	}
+	public int getbSplineHint() {
+		return bSplineHint;
+	}
+	
+	public void setbSplineHint(int bSplineHint) {
+		this.bSplineHint = bSplineHint;
 	}
 	
 

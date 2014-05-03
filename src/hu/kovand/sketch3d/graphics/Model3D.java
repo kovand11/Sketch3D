@@ -1,7 +1,10 @@
 package hu.kovand.sketch3d.graphics;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,6 +59,8 @@ public class Model3D {
 	List<FloatBuffer> passivePointsVertexBufferList;
 	List<FloatBuffer> passiveCurvesVertexBufferList;
 	List<Integer> passiveCurvesSizeList;
+	
+	FloatBuffer boundingBoxBuffer;
 	
 	List<ModelElement> elementList; //holds all model element
 	UUID activeSurface;
@@ -138,7 +143,7 @@ public class Model3D {
 	}
 	
 	public List<Integer> getSelectedCurvesSizeList(){
-		return activeCurvesSizeList;
+		return selectedCurvesSizeList;
 	}
 	
 	//ACTIVE (all that has the active surface as parent but not selected)
@@ -174,7 +179,7 @@ public class Model3D {
 			if (elem.getType() == ModelElement.TYPE_CURVE)
 			{
 				ModelCurve c = (ModelCurve)elem;
-				if (c.getParent().equals(activeSurface))
+				if (c.getParent().equals(activeSurface) && (!selectedList.contains(c.getId())))
 				{
 					PolyLineRenderable pl = new PolyLineRenderable(c.evaluate());
 					buffArr.add(pl.getVertexBuffer());
@@ -291,6 +296,76 @@ public class Model3D {
 		return passiveCurvesSizeList;		
 	}
 	
+	public void refreshBoundingBoxBuffer()
+	{
+		List<Float> xVec = new ArrayList<Float>();
+		List<Float> yVec = new ArrayList<Float>();
+		
+		for (ModelElement elem : elementList)
+		{
+			if (elem.getType() == ModelElement.TYPE_POINT)
+			{
+				ModelPoint p = (ModelPoint)elem;
+				Vec2 v = p.getAddress();
+				xVec.add(v.getX());
+				yVec.add(v.getX());
+				
+			}
+			else if (elem.getType() == ModelElement.TYPE_CURVE)
+			{
+				ModelCurve c = (ModelCurve)elem;
+				
+			}
+		}
+		
+		//get them
+		
+		float minX = Collections.min(xVec);
+		float maxX = Collections.max(xVec);
+		float minY = Collections.min(yVec);
+		float maxY = Collections.max(yVec);		
+		float xAvg =0.5f*(minX+maxX);
+		float xDiff = minX + maxX;
+		float yAvg = 0.5f*(minY+maxY);
+		float yDiff =  minY + maxY;
+		
+		
+		
+		//final position
+		ModelSurface surface = (ModelSurface)getElementById(activeSurface);
+		Vec3 botleft = surface.evaluate(new Vec2(xAvg-xDiff, yAvg-yDiff));
+		Vec3 topleft = surface.evaluate(new Vec2(xAvg-xDiff, yAvg+yDiff));
+		Vec3 topright = surface.evaluate(new Vec2(xAvg+xDiff, yAvg+yDiff));
+		Vec3 botright = surface.evaluate(new Vec2(xAvg+xDiff, yAvg-yDiff));
+		
+		ByteBuffer bb = ByteBuffer.allocateDirect(3*10);
+		bb.order(ByteOrder.nativeOrder());
+		boundingBoxBuffer = bb.asFloatBuffer();
+		boundingBoxBuffer.position(0);	
+		
+		boundingBoxBuffer.put(botleft.getX()); boundingBoxBuffer.put(botleft.getY()); boundingBoxBuffer.put(botleft.getZ());
+		boundingBoxBuffer.put(topleft.getX()); boundingBoxBuffer.put(topleft.getY()); boundingBoxBuffer.put(topleft.getZ());
+		boundingBoxBuffer.put(topright.getX()); boundingBoxBuffer.put(topright.getY()); boundingBoxBuffer.put(topright.getZ());
+		boundingBoxBuffer.put(botright.getX()); boundingBoxBuffer.put(botright.getY()); boundingBoxBuffer.put(botright.getZ());
+		
+		boundingBoxBuffer.put(botleft.getX()); boundingBoxBuffer.put(botleft.getY()); boundingBoxBuffer.put(botleft.getZ());
+		boundingBoxBuffer.put(topleft.getX()); boundingBoxBuffer.put(topleft.getY()); boundingBoxBuffer.put(topleft.getZ());
+		boundingBoxBuffer.put(topright.getX()); boundingBoxBuffer.put(topright.getY()); boundingBoxBuffer.put(topright.getZ());
+		
+		boundingBoxBuffer.put(topright.getX()); boundingBoxBuffer.put(topright.getY()); boundingBoxBuffer.put(topright.getZ());
+		boundingBoxBuffer.put(botright.getX()); boundingBoxBuffer.put(botright.getY()); boundingBoxBuffer.put(botright.getZ());
+		boundingBoxBuffer.put(botleft.getX()); boundingBoxBuffer.put(botleft.getY()); boundingBoxBuffer.put(botleft.getZ());
+		
+	}
+	
+	/**
+	 * 
+	 * @return 4 vertex for lines and 6 vertex for 2 triangles
+	 */
+	public FloatBuffer getBoundingBoxBuffer() {
+		return boundingBoxBuffer;
+	}
+	
 	public UUID getActiveSurface()
 	{
 		return activeSurface;		
@@ -298,7 +373,6 @@ public class Model3D {
 	
 	public UUID getElementByScreenPosition(Vec2 sp,float lx,float ly,float[] mvp)
 	{
-		//TODO only supports points
 		List<ModelPoint> pointList = new ArrayList<ModelPoint>();
 		for (ModelElement elem : elementList)
 		{	
@@ -307,26 +381,55 @@ public class Model3D {
 			}
 		}
 		List<Vec2> screenPointList = new ArrayList<Vec2>();
-		for (int i=0;i<pointList.size();i++)
-		{
-			Vec3 pos = pointList.get(i).evaluate();
-			Vec4 norm = new Vec4(pos);
-			float [] scr = new float[4];
-			Matrix.multiplyMV(scr, 0, mvp, 0, norm.toArray(), 0);
-			screenPointList.add(new Vec2(scr[0]/scr[3],scr[1]/scr[3]));
-		}		
+		for (ModelPoint p : pointList){
+			screenPointList.add(mapToScreenNorm(p.evaluate(), mvp));
+		}	
+		
+		boolean isPointSelected = false;
 		
 		int closest = Vec2.findClosest(screenPointList, sp, lx, ly);
 		if (closest>=0){
-			Vec2 distVec = Vec2.subtract(screenPointList.get(closest),sp);
-			float dist = (float)Math.sqrt(distVec.getX()*distVec.getX()*lx*lx+distVec.getY()*distVec.getY()*ly*ly);
+			float dist = Vec2.distance(screenPointList.get(closest), sp, lx, ly);
 			if (dist<Constants.SELECT_DISTANCE)
+			{
+				isPointSelected = true;
 				return pointList.get(closest).getId();
-			else return null;
+			}
 		}
-		else{
-			return null;
-		}
+		
+		if (!isPointSelected)
+		{
+			List<ModelCurve> curveList = new ArrayList<ModelCurve>();
+			for (ModelElement elem : elementList){	
+				if (elem.getType() == ModelElement.TYPE_CURVE){
+					curveList.add((ModelCurve)elem);
+				}
+			}			
+			if (curveList.size() == 0){
+				return null;
+			}
+			
+			List<List<Vec2>> screenCurveList = new ArrayList<List<Vec2>>();
+			for (ModelCurve c : curveList){
+				List<Vec3> eval = c.evaluate().getPoints();
+				screenCurveList.add(mapToScreenNorm(eval, mvp));			
+			}
+			
+			List<Float> closestList = new ArrayList<Float>();
+			for (List<Vec2> c : screenCurveList)
+			{
+				closest = Vec2.findClosest(c, sp, lx, ly);
+				float dist = Vec2.distance(c.get(closest), sp, lx, ly);
+				closestList.add(dist);			
+			}
+			
+			Float minDist = Collections.min(closestList);
+			int minIndex = closestList.indexOf(minDist);
+			if (minDist < Constants.SELECT_DISTANCE){
+				return curveList.get(minIndex).getId();
+			}
+		}		
+		return null;
 	}
 		
 	public void clear()
@@ -407,6 +510,10 @@ public class Model3D {
 			if (elem.getType() == ModelElement.TYPE_POINT)
 			{
 				activeSurface = ((ModelPoint)(elem)).getParent();				
+			}
+			if (elem.getType() == ModelElement.TYPE_CURVE)
+			{
+				activeSurface = ((ModelCurve)(elem)).getParent();				
 			}
 		}
 		else if ( mode == DEFINE_SURFACE_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE )

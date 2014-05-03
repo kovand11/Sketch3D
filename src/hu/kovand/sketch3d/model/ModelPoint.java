@@ -52,5 +52,9 @@ public class ModelPoint extends ModelElement {
 	public UUID getParent(){
 		return parent;
 	}
+	
+	public Vec2 getAddress() {
+		return address;
+	}
 
 }

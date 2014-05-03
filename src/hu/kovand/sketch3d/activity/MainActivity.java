@@ -410,6 +410,11 @@ public class MainActivity extends Activity {
 			
 			Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
 			UUID elem = model3D.getElementByScreenPosition(p, glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
+			if (elem != null)
+				Toast.makeText(context, elem.toString(),Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(context, "null",Toast.LENGTH_SHORT).show();
+			
 			if (elem != null){
 				if (model3D.isSelected(elem)){
 					model3D.unselectElement(elem);
