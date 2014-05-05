@@ -157,6 +157,24 @@ public class MyMath {
 		return addresses;
 	}
 	
+	public static List<Vec2> listRemoveZ(List<Vec3> vl)
+	{
+		List<Vec2> list = new ArrayList<Vec2>();
+		for (Vec3 v : vl){
+			list.add(v.ignoreZ());			
+		}	
+		return list;
+	}
+	
+	public static List<Vec3> listAddZ(List<Vec2> vl,float z)
+	{
+		List<Vec3> list = new ArrayList<Vec3>();
+		for (Vec2 v : vl){
+			list.add(new Vec3(v.getX(), v.getY(), z));			
+		}
+		return list;		
+	}
+	
 	
 	
 	

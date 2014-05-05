@@ -206,6 +206,16 @@ public class BSpline {
 		return n;		
 	}
 	
+	public List<Vec3> evaluateAtKnots()
+	{
+		List<Vec3> list = new ArrayList<Vec3>();
+		for (Float f : knots)
+		{
+			list.add(evaluate(f));
+		}
+		return list;
+	}
+	
 	
 	
 	

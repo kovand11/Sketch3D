@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import android.graphics.AvoidXfermode.Mode;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -29,6 +27,7 @@ import hu.kovand.sketch3d.model.ModelSurfaceByTwoPointsAndSurface;
 import hu.kovand.sketch3d.model.ModelSurfaceConst;
 import hu.kovand.sketch3d.model.ModelSurfaceOffset;
 import hu.kovand.sketch3d.utility.Constants;
+import hu.kovand.sketch3d.utility.MyMath;
 
 public class Model3D {
 
@@ -36,9 +35,9 @@ public class Model3D {
 	
 	public static final String DEFINE_SURFACE_DEFAULT = "Select..";  
 	public static final String DEFINE_SURFACE_PARENT = "Parent"; 
-	public static final String DEFINE_SURFACE_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE = "Po Po Perp(Su)";
-	public static final String DEFINE_SURFACE_3POINTS = "Po Po Po";
-	public static final String DEFINE_SURFACE_PARENTSURFACE_AND_OFFSET_POINT = "Parent Offs(Po)";
+	public static final String DEFINE_SURFACE_2POINTS_AND_COMMON_PERPEDICULAR_SURFACE = "P+P+Perp(S)";
+	public static final String DEFINE_SURFACE_3POINTS = "P+P+P";
+	public static final String DEFINE_SURFACE_PARENTSURFACE_AND_OFFSET_POINT = "Par(P|S)+Offs(Po)";
 	
 	public static final String DEFINE_ELEMENT_DEFAULT = "Select..";
 	public static final String DEFINE_ELEMENT_LINE = "Line";
@@ -71,6 +70,11 @@ public class Model3D {
 	UUID activeSurface;
 	List<UUID> selectedList;
 	
+	//EXTRA
+	List<ModelPoint> bSplineKnots;
+	List<FloatBuffer> knotPointsVertexBufferList;
+	
+	
 	public Model3D()
 	{		
 		ModelSurface base = new ModelSurfaceConst(this,new Vec3(0.0f,0.0f,0.0f),new Vec3(1.0f,0.0f,0.0f),new Vec3(0.0f,1.0f,0.0f));
@@ -78,6 +82,11 @@ public class Model3D {
 		elementList.add(base);
 		activeSurface = base.getId();
 		selectedList = new ArrayList<UUID>();
+		
+		//TMP
+		
+		knotPointsVertexBufferList = new ArrayList<FloatBuffer>();
+		bSplineKnots = new ArrayList<ModelPoint>();
 		
 		refreshBuffer(REFRESH_BUFFER_ALL);
 	}
@@ -110,7 +119,7 @@ public class Model3D {
 		{
 			ModelElement elem = getElementById(id);
 			if (elem.getType() == ModelElement.TYPE_POINT){
-				FloatBuffer buff = (new Vec3Renderable(((ModelPoint)(elem)).evaluate())).getVertexBuffer();
+				FloatBuffer buff = (new Vec3Renderable(((ModelPoint)(elem)).evaluate(),Vec3Renderable.RADIUS_BIG)).getVertexBuffer();
 				list.add(buff);								
 			}
 		}
@@ -162,7 +171,7 @@ public class Model3D {
 			{
 				ModelPoint p = (ModelPoint)elem;
 				if (p.getParent().equals(activeSurface) && (!selectedList.contains(p.getId())) ){
-					FloatBuffer buff = (new Vec3Renderable(p.evaluate())).getVertexBuffer();
+					FloatBuffer buff = (new Vec3Renderable(p.evaluate(),Vec3Renderable.RADIUS_BIG)).getVertexBuffer();
 					list.add(buff);					
 				}
 			}
@@ -217,7 +226,7 @@ public class Model3D {
 			ModelPoint p = (ModelPoint)getElementById(id);
 			if (!selectedList.contains(p.getId()))
 			{
-				FloatBuffer buff = (new Vec3Renderable(p.evaluate())).getVertexBuffer();
+				FloatBuffer buff = (new Vec3Renderable(p.evaluate(),Vec3Renderable.RADIUS_BIG)).getVertexBuffer();
 				list.add(buff);			
 			}
 		}
@@ -260,7 +269,7 @@ public class Model3D {
 				if (!activeExtraList.contains(elem.getId()) && !selectedList.contains(elem.getId()) )
 				{
 					ModelPoint p = (ModelPoint)elem;
-					FloatBuffer buff = (new Vec3Renderable(p.evaluate())).getVertexBuffer();
+					FloatBuffer buff = (new Vec3Renderable(p.evaluate(),Vec3Renderable.RADIUS_BIG)).getVertexBuffer();
 					arr.add(buff);										
 				}				
 			}			
@@ -291,6 +300,24 @@ public class Model3D {
 		}
 		passiveCurvesVertexBufferList = buffArr;
 		passiveCurvesSizeList = sizeArr;
+	}
+	
+	//TODO fff
+	public void refreshKnotPointsVertexBufferList()
+	{
+		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
+		for (ModelPoint mp : bSplineKnots)
+		{
+			Vec3Renderable p = new Vec3Renderable(mp.evaluate(), Vec3Renderable.RADIUS_SMALL);
+			list.add(p.getVertexBuffer());
+		}		
+		knotPointsVertexBufferList = list;
+		Log.d(TAG + ".knotsize", Integer.toString(list.size()));
+	}
+	
+	public List<FloatBuffer> getKnotPointsVertexBufferList()
+	{
+		return knotPointsVertexBufferList;
 	}
 	
 	public List<FloatBuffer> getPassiveCurvesVertexBufferList(){
@@ -650,6 +677,24 @@ public class Model3D {
 	public void selectElement(UUID id)
 	{
 		selectedList.add(id);
+		ModelElement elem = getElementById(id);
+		if (elem.getType() == ModelElement.TYPE_CURVE)
+		{
+			ModelCurve c = (ModelCurve)elem;
+			PolyLine pl = new PolyLine(MyMath.listAddZ(c.getPoints(), 0.0f));
+			BSpline bs = new BSpline();
+			bs.approximate(pl, 3, c.getbSplineHint());
+			List<Vec2> knotAddresses = MyMath.listRemoveZ(bs.evaluateAtKnots());
+			for (Vec2 v : knotAddresses)
+			{
+				ModelPoint p = new ModelPoint(this, c.getParent(), v);
+				p.setAttachedCurve(c.getId());
+				bSplineKnots.add(p);
+			}
+			refreshKnotPointsVertexBufferList();
+		}
+		
+		
 	}
 	
 	public boolean isSelected(UUID id)

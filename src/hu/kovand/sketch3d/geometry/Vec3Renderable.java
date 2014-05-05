@@ -1,12 +1,13 @@
 package hu.kovand.sketch3d.geometry;
 
-import hu.kovand.sketch3d.utility.Constants;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class Vec3Renderable extends Vec3 {
+	
+	public static final float RADIUS_SMALL = 5.0f;
+	public static final float RADIUS_BIG = 7.0f;
 	
 	public static final int COORDS = 3;
 	public static final int BYTES_PER_FLOAT = 4;
@@ -14,22 +15,22 @@ public class Vec3Renderable extends Vec3 {
 	
 	private FloatBuffer vertexBuffer;
 
-	public Vec3Renderable(float[] v) {
+	public Vec3Renderable(float[] v, float renderRadius) {
 		super(v);		
-		generateBuffer(v[0], v[1], v[2], Constants.POINT_SQUARE_RADIUS);
+		generateBuffer(v[0], v[1], v[2], renderRadius);
 		
 	}
 	
-	public Vec3Renderable(float x,float y,float z)
+	public Vec3Renderable(float x,float y,float z, float renderRadius)
 	{
 		super(x,y,z);
-		generateBuffer(x, y, z, Constants.POINT_SQUARE_RADIUS);
+		generateBuffer(x, y, z, renderRadius);
 	}
 	
-	public Vec3Renderable(Vec3 v)
+	public Vec3Renderable(Vec3 v, float renderRadius)
 	{
 		super(v.getX(), v.getY(), v.getZ());
-		generateBuffer(v.getX(), v.getY(), v.getZ(), Constants.POINT_SQUARE_RADIUS);
+		generateBuffer(v.getX(), v.getY(), v.getZ(), renderRadius);
 		
 	}
 	

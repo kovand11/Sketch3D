@@ -359,7 +359,7 @@ public class ModelOverlay {
 				Vec2 its = surface.findRayIntersection(new Vec2(p.getX(),p.getY()), mvp);
 				list.add(its);
 			}		
-			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null);
+			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,6);
 			Log.d(TAG+".add", c.getId().toString());
 			elements.add(c);
 			elements.remove(closestStartCurve);			
@@ -388,7 +388,7 @@ public class ModelOverlay {
 				Vec2 its = surface.findRayIntersection(new Vec2(p.getX(),p.getY()), mvp);
 				list.add(its);
 			}		
-			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null);
+			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,6);
 			Log.d(TAG+".add", c.getId().toString());
 			elements.add(c);				
 		}
@@ -413,7 +413,7 @@ public class ModelOverlay {
 		List<Vec2> points= new ArrayList<Vec2>();
 		points.add(surface.findRayIntersection(a, mvp));
 		points.add(surface.findRayIntersection(b, mvp));
-		ModelCurve c = new ModelCurve(model, surface.getId(), points, null, null);
+		ModelCurve c = new ModelCurve(model, surface.getId(), points, null, null,6);
 		elements.add(c);
 	}
 	

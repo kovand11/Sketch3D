@@ -13,6 +13,7 @@ import android.os.Parcel;
 public class ModelPoint extends ModelElement {
 	
 	UUID parent;
+	UUID attachedCurve;
 	Vec2 address;	
 
 	public ModelPoint(Model3D m,UUID p ,Vec2 addr) {
@@ -55,6 +56,14 @@ public class ModelPoint extends ModelElement {
 	
 	public Vec2 getAddress() {
 		return address;
+	}
+	
+	public UUID getAttachedCurve() {
+		return attachedCurve;
+	}
+	
+	public void setAttachedCurve(UUID attachedCurve) {
+		this.attachedCurve = attachedCurve;
 	}
 
 }

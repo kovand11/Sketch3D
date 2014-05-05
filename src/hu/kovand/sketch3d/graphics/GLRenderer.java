@@ -34,6 +34,9 @@ public class GLRenderer implements Renderer {
 	private static final String U_COLOR = "u_Color";
     private static final String A_POSITION = "a_Position";
     private static final String U_MVPMATRIX = "u_MVPMatrix";
+    
+    private static final float LINE_WIDTH = 5.0f; 
+    
     private int uColorLocation = 0;
     private int aPositionLocation = 0;
     private int uMVPMatrixLocation = 0;
@@ -43,17 +46,19 @@ public class GLRenderer implements Renderer {
     private final Context context;
     private int program = 0;
     
+    
     //
     //colors
     private static final float[] GESTURE_COLOR = { 1.0f ,0.28f ,0.0f ,0.7f};
     private static final float[] SELECTED_POINT_COLOR = {  0.7f ,0.1f ,0.1f ,0.9f};//dark red
-    private static final float[] SELECTED_CURVE_COLOR = { 0.8f ,0.1f ,0.1f ,0.9f}; //dark red
-    private static final float[] ACTIVE_POINT_COLOR = { 0.1f ,0.3f ,0.7f ,0.7f};
+    private static final float[] SELECTED_CURVE_COLOR = { 0.8f ,0.1f ,0.1f ,0.7f}; //dark red
+    private static final float[] ACTIVE_POINT_COLOR = { 0.1f ,0.3f ,0.7f ,0.9f};
     private static final float[] ACTIVE_CURVE_COLOR = { 0.1f ,0.3f ,0.9f ,0.7f}; 
-    private static final float[] EXTRA_POINT_COLOR = { 0.1f ,0.6f ,0.1f ,0.7f};
-    private static final float[] PASSIVE_POINT_COLOR = { 0.05f ,0.05f ,0.05f ,0.8f};
-    private static final float[] PASSIVE_CURVE_COLOR = { 0.1f ,0.1f ,0.1f ,0.8f};
-    private static final float[] SURFACE_BOARDER_COLOR = { 0.0f ,0.0f ,0.0f ,0.1f};
+    private static final float[] EXTRA_POINT_COLOR = { 0.1f ,0.6f ,0.1f ,0.9f};
+    private static final float[] PASSIVE_POINT_COLOR = { 0.05f ,0.05f ,0.05f ,0.9f};
+    private static final float[] PASSIVE_CURVE_COLOR = { 0.1f ,0.1f ,0.1f ,0.7f};
+    private static final float[] SURFACE_BORDER_COLOR = { 0.0f ,0.0f ,0.0f ,0.5f};
+    private static final float[] KNOT_COLOR = {0.5f,0.5f,0.5f,1.0f};
     
     public static final int RENDERMODE_POINTS = 0;
     public static final int RENDERMODE_LINE_STRIP = 1;
@@ -121,8 +126,8 @@ public class GLRenderer implements Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {		
-		GLES20.glClearColor(0.9f, 0.9f, 0.9f, 0.0f);
-		GLES20.glLineWidth(4.0f);
+		GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		GLES20.glLineWidth(LINE_WIDTH);
 		
 		String vertexShaderSource = TextResourceReader.readTextFileFromResource(context, R.raw.vertex_shader);
         String fragmentShaderSource = TextResourceReader.readTextFileFromResource(context, R.raw.fragment_shader);
@@ -192,7 +197,7 @@ public class GLRenderer implements Renderer {
 		List<Integer> sizeList;
 		
 
-		//GesureHandler
+		//GesureHandler (special)
 		//
 		strokeHandler.updateBuffer();
 		vertexData = strokeHandler.getVertexBuffer();
@@ -208,123 +213,31 @@ public class GLRenderer implements Renderer {
 
         //
         //Model3D
-        //
-        
+        //        
         
         //selected points
-        //
-        vertexDataList = model3D.getSelectedPointsVertexBufferList();
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, SELECTED_POINT_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, Vec3Renderable.VERTEX_PER_POINT);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
+        renderPointList(model3D.getSelectedPointsVertexBufferList(), MVPMatrix, SELECTED_POINT_COLOR);
         
         //active points
-        //
-        vertexDataList = model3D.getActivePointsVertexBufferList();
-        //fixed size
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, ACTIVE_POINT_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, Vec3Renderable.VERTEX_PER_POINT);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
+        renderPointList(model3D.getActivePointsVertexBufferList(), MVPMatrix, ACTIVE_POINT_COLOR);        
         
         //active curves
-        //
-        vertexDataList = model3D.getActiveCurvesVertexBufferList();
-        sizeList =model3D.getActiveCurvesSizeList();
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	size = sizeList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, ACTIVE_CURVE_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, size);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
+        renderCurveList(model3D.getActiveCurvesVertexBufferList(), model3D.getActiveCurvesSizeList(), MVPMatrix, ACTIVE_CURVE_COLOR);
         
-        //EXTRA POINTS
-        vertexDataList = model3D.getExtraPointsVertexBufferList();
-        //fixed size
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, EXTRA_POINT_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, Vec3Renderable.VERTEX_PER_POINT);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
-        
-        
-        
+        //extra points (not child of  active, but lies on it)
+        renderPointList(model3D.getExtraPointsVertexBufferList(), MVPMatrix, EXTRA_POINT_COLOR);
+         
         //passive points
-        //
-        vertexDataList = model3D.getPassivePointsVertexBufferList();
-        //fixed size
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, PASSIVE_POINT_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, Vec3Renderable.VERTEX_PER_POINT);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
+        renderPointList(model3D.getPassivePointsVertexBufferList(), MVPMatrix, PASSIVE_POINT_COLOR);
         
         //passive curves
-        //
-        vertexDataList = model3D.getPassiveCurvesVertexBufferList();
-        sizeList =model3D.getPassiveCurvesSizeList();
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	size = sizeList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, PASSIVE_CURVE_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, size);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
+        renderCurveList(model3D.getPassiveCurvesVertexBufferList(), model3D.getPassiveCurvesSizeList(), MVPMatrix, PASSIVE_CURVE_COLOR);
         
      	//selected curves
-        //
-        vertexDataList = model3D.getSelectedCurvesVertexBufferList();
-        sizeList =model3D.getSelectedCurvesSizeList();
-        for (int i=0;i<vertexDataList.size();i++)
-        {
-        	vertexData = vertexDataList.get(i);
-        	size = sizeList.get(i);
-        	vertexData.position(0);
-    		GLES20.glEnableVertexAttribArray(aPositionLocation);
-            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
-            GLES20.glUniform4fv(uColorLocation, 1, SELECTED_CURVE_COLOR , 0);        
-            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
-            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, size);
-            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
-        }
+        renderCurveList(model3D.getSelectedCurvesVertexBufferList(), model3D.getSelectedCurvesSizeList(), MVPMatrix, SELECTED_CURVE_COLOR);
+        
+        //knots
+        renderPointList(model3D.getKnotPointsVertexBufferList(), MVPMatrix, KNOT_COLOR);
         
         
         
@@ -436,6 +349,42 @@ public class GLRenderer implements Renderer {
 		return MVPMatrix;
 		
 	}
+	
+	private void renderPointList(List<FloatBuffer> points,float[] mvp,float[] color)
+	{
+		for (FloatBuffer buff : points)
+        {
+        	buff.position(0);
+    		GLES20.glEnableVertexAttribArray(aPositionLocation);
+            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , buff);        
+            GLES20.glUniform4fv(uColorLocation, 1, color , 0);        
+            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, mvp, 0);        
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, Vec3Renderable.VERTEX_PER_POINT);
+            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
+        }				
+	}
+	
+	private void renderCurveList(List<FloatBuffer> curves,List<Integer> sizes,float [] mvp, float[] color)
+	{
+        for (int i=0;i<curves.size();i++)
+        {
+        	FloatBuffer vertexData = curves.get(i);
+        	int size = sizes.get(i);
+        	vertexData.position(0);
+    		GLES20.glEnableVertexAttribArray(aPositionLocation);
+            GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
+            GLES20.glUniform4fv(uColorLocation, 1, color , 0);        
+            GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, mvp, 0);        
+            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, size);
+            GLES20.glDisableVertexAttribArray(aPositionLocation);        	
+        }		
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 }

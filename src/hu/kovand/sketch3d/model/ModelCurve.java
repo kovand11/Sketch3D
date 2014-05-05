@@ -25,12 +25,13 @@ public class ModelCurve extends ModelElement {
 	
 	
 
-	public ModelCurve(Model3D m,UUID parent,List<Vec2> points,UUID startPoint,UUID endPoint) {
+	public ModelCurve(Model3D m,UUID parent,List<Vec2> points,UUID startPoint,UUID endPoint,int bSplineHint) {
 		super(m);
 		this.parent = parent;
 		this.points = points;
 		attachedToStart = startPoint;
 		attachedToEnd = endPoint;
+		this.bSplineHint = bSplineHint;
 	}
 	
 	public ModelCurve(ModelCurve c,UUID startPoint,UUID endPoint)
