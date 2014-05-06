@@ -302,9 +302,36 @@ public class Model3D {
 		passiveCurvesSizeList = sizeArr;
 	}
 	
-	//TODO fff
 	public void refreshKnotPointsVertexBufferList()
 	{
+		int countCurves = 0;
+		ModelCurve curve = null;
+		for (UUID id : selectedList)
+		{
+			ModelElement elem = getElementById(id);
+			if (elem.getType() == ModelElement.TYPE_CURVE){
+				countCurves++;
+				curve = (ModelCurve)elem;		
+			}
+		}
+		
+		bSplineKnots.clear();
+		
+		if (countCurves == 1)
+		{
+			PolyLine pl = new PolyLine(MyMath.listAddZ(curve.getPoints(), 0.0f));
+			BSpline bs = new BSpline();
+			bs.approximate(pl, 3, curve.getbSplineHint());
+			List<Vec2> knotAddresses = MyMath.listRemoveZ(bs.evaluateAtKnots());
+			for (Vec2 v : knotAddresses)
+			{
+				ModelPoint p = new ModelPoint(this, curve.getParent(), v);
+				p.setAttachedCurve(curve.getId());
+				bSplineKnots.add(p);
+			}
+		}
+		
+		
 		List<FloatBuffer> list =new ArrayList<FloatBuffer>();
 		for (ModelPoint mp : bSplineKnots)
 		{
@@ -312,7 +339,7 @@ public class Model3D {
 			list.add(p.getVertexBuffer());
 		}		
 		knotPointsVertexBufferList = list;
-		Log.d(TAG + ".knotsize", Integer.toString(list.size()));
+		
 	}
 	
 	public List<FloatBuffer> getKnotPointsVertexBufferList()
@@ -338,39 +365,71 @@ public class Model3D {
 			if (elem.getType() == ModelElement.TYPE_POINT)
 			{
 				ModelPoint p = (ModelPoint)elem;
-				Vec2 v = p.getAddress();
-				xVec.add(v.getX());
-				yVec.add(v.getX());
+				if (p.getParent() == activeSurface)
+				{
+					Vec2 v = p.getAddress();
+					xVec.add(v.getX());
+					yVec.add(v.getY());
+				}
 				
 			}
-			else if (elem.getType() == ModelElement.TYPE_CURVE)
+			if (elem.getType() == ModelElement.TYPE_CURVE)
 			{
 				ModelCurve c = (ModelCurve)elem;
-				
+				if (c.getParent() == activeSurface)
+				{
+					for (Vec2 v : c.getPoints())
+					{
+						xVec.add(v.getX());
+						yVec.add(v.getY());
+					}
+				}
 			}
 		}
+		float minX;
+		float maxX;
+		float minY;
+		float maxY;
+		if (xVec.size() == 0)
+		{
+			minX = 0.0f;
+			maxX = 0.0f;
+		}
+		else
+		{
+			minX = Collections.min(xVec);
+			maxX = Collections.max(xVec);			
+		}
 		
-		//get them
+		if (yVec.size() == 0)
+		{
+			minY = 0.0f;
+			maxY = 0.0f;			
+		}
+		else
+		{
+			minY = Collections.min(yVec);
+			maxY = Collections.max(yVec);			
+		}
 		
-		float minX = Collections.min(xVec);
-		float maxX = Collections.max(xVec);
-		float minY = Collections.min(yVec);
-		float maxY = Collections.max(yVec);		
+		
+	
 		float xAvg =0.5f*(minX+maxX);
-		float xDiff = minX + maxX;
+		float xDiff = maxX - minX;
 		float yAvg = 0.5f*(minY+maxY);
-		float yDiff =  minY + maxY;
+		float yDiff =  maxY - minY;
 		
 		
 		
 		//final position
 		ModelSurface surface = (ModelSurface)getElementById(activeSurface);
-		Vec3 botleft = surface.evaluate(new Vec2(xAvg-xDiff, yAvg-yDiff));
-		Vec3 topleft = surface.evaluate(new Vec2(xAvg-xDiff, yAvg+yDiff));
-		Vec3 topright = surface.evaluate(new Vec2(xAvg+xDiff, yAvg+yDiff));
-		Vec3 botright = surface.evaluate(new Vec2(xAvg+xDiff, yAvg-yDiff));
+		Vec3 botleft = surface.evaluate(new Vec2(xAvg-0.75f*xDiff, yAvg-0.75f*yDiff));
+		Vec3 topleft = surface.evaluate(new Vec2(xAvg-0.75f*xDiff, yAvg+0.75f*yDiff));
+		Vec3 topright = surface.evaluate(new Vec2(xAvg+0.75f*xDiff, yAvg+0.75f*yDiff));
+		Vec3 botright = surface.evaluate(new Vec2(xAvg+0.75f*xDiff, yAvg-0.75f*yDiff));
 		
-		ByteBuffer bb = ByteBuffer.allocateDirect(3*10);
+		//TODO extract const
+		ByteBuffer bb = ByteBuffer.allocateDirect(4*10*3);
 		bb.order(ByteOrder.nativeOrder());
 		boundingBoxBuffer = bb.asFloatBuffer();
 		boundingBoxBuffer.position(0);	
@@ -387,6 +446,7 @@ public class Model3D {
 		boundingBoxBuffer.put(topright.getX()); boundingBoxBuffer.put(topright.getY()); boundingBoxBuffer.put(topright.getZ());
 		boundingBoxBuffer.put(botright.getX()); boundingBoxBuffer.put(botright.getY()); boundingBoxBuffer.put(botright.getZ());
 		boundingBoxBuffer.put(botleft.getX()); boundingBoxBuffer.put(botleft.getY()); boundingBoxBuffer.put(botleft.getZ());
+	
 		
 	}
 	
@@ -635,6 +695,7 @@ public class Model3D {
 			refreshActiveCurvesVertexBufferAndSizeList();		
 			refreshPassivePointsVertexBufferList();
 			refreshPassiveCurvesVertexBufferAndSizeList();
+			refreshKnotPointsVertexBufferList();
 		}
 		else if (mode == REFRESH_BUFFER_POINT_SELECT){
 			refreshSelectedPointsVertexBufferList();
@@ -649,10 +710,13 @@ public class Model3D {
 			refreshSelectedCurvesVertexBufferAndSizeList();
 			refreshActiveCurvesVertexBufferAndSizeList();
 			refreshPassiveCurvesVertexBufferAndSizeList();
+			refreshKnotPointsVertexBufferList();
 		}
 		else if (mode == REFRESH_BUFFER_CURVE_ADD){
 			refreshActiveCurvesVertexBufferAndSizeList();			
 		}
+		
+		refreshBoundingBoxBuffer();
 		
 		
 	}
@@ -676,25 +740,7 @@ public class Model3D {
 	
 	public void selectElement(UUID id)
 	{
-		selectedList.add(id);
-		ModelElement elem = getElementById(id);
-		if (elem.getType() == ModelElement.TYPE_CURVE)
-		{
-			ModelCurve c = (ModelCurve)elem;
-			PolyLine pl = new PolyLine(MyMath.listAddZ(c.getPoints(), 0.0f));
-			BSpline bs = new BSpline();
-			bs.approximate(pl, 3, c.getbSplineHint());
-			List<Vec2> knotAddresses = MyMath.listRemoveZ(bs.evaluateAtKnots());
-			for (Vec2 v : knotAddresses)
-			{
-				ModelPoint p = new ModelPoint(this, c.getParent(), v);
-				p.setAttachedCurve(c.getId());
-				bSplineKnots.add(p);
-			}
-			refreshKnotPointsVertexBufferList();
-		}
-		
-		
+		selectedList.add(id);		
 	}
 	
 	public boolean isSelected(UUID id)
@@ -782,6 +828,12 @@ public class Model3D {
 			arr.add(mapToScreenNorm(p, mvp));
 		}
 		return arr;
+	}
+	
+	public void increaseBsplineHint(UUID curveId)
+	{
+		ModelCurve curve = (ModelCurve)getElementById(curveId);
+		curve.setbSplineHint(curve.getbSplineHint()+1);		
 	}
 	
 	

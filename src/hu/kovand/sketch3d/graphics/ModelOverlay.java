@@ -28,6 +28,8 @@ public class ModelOverlay {
 	private static final float CURVE_TO_CURVE_MERGE = 100.0f;
 	private static final float CURVE_TO_CURVE_EXTEND = 200.0f;
 	
+	private static final int DEFAULT_P = 3;
+	private static final int DEFAULT_N = 7;
 	
 	
 	
@@ -165,14 +167,6 @@ public class ModelOverlay {
 	 */
 	public void addCurve(List<Vec2> curve)
 	{		
-		/*List<Vec2> list = new ArrayList<Vec2>();
-		for (Vec2 v : curve)
-		{
-			Vec2 its = surface.findRayIntersection(v, mvp);
-			list.add(its);
-		}		
-		ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null);
-		elements.add(c);*/
 		
 		List <ModelPoint> modelPoints = new ArrayList<ModelPoint>();
 		List <ModelCurve> modelCurves = new ArrayList<ModelCurve>();
@@ -249,22 +243,23 @@ public class ModelOverlay {
 		}
 		
 		
-		Log.d(TAG, Float.toString(minStart));
 		
 		if (minStart < CURVE_TO_CURVE_MERGE && !attachPointStart)
 		{
 			attachCurveStart = true;
-			Log.d(TAG+".start", closestStartCurve.getId().toString());
 		}
 		
 		if (minEnd < CURVE_TO_CURVE_MERGE && !attachPointEnd)
 		{
 			attachCurveEnd = true;
-			Log.d(TAG+".end", closestEndCurve.getId().toString());
 		}
 		
+		boolean doOverSketchAndExtend = false;
+		doOverSketchAndExtend |= closestStartCurve == closestEndCurve && attachCurveStart && attachCurveEnd;
+		doOverSketchAndExtend |= attachCurveStart && !attachCurveEnd;
 		
-		if (closestStartCurve == closestEndCurve && attachCurveStart || attachCurveEnd)
+		
+		if (doOverSketchAndExtend)
 		{
 			List<Vec2> closestNorm = Model3D.mapToScreenNorm(closestStartCurve.evaluate().getPoints(), mvp);
 			List<Integer> closestIndex = new ArrayList<Integer>();
@@ -286,6 +281,7 @@ public class ModelOverlay {
 			}
 			
 			List<Vec2> newCurve = new ArrayList<Vec2>();
+			
 			
 			if (closestEndCurveIndex > closestStartCurveIndex)
 			{
@@ -350,8 +346,8 @@ public class ModelOverlay {
 			}
 			
 			BSpline curveBspline = new BSpline();
-			curveBspline.approximate(new PolyLine(curve3D), 3, 15);
-			PolyLine curveEval = curveBspline.evaluateN(200);
+			curveBspline.approximate(new PolyLine(curve3D), DEFAULT_P, closestStartCurve.getbSplineHint());
+			PolyLine curveEval = curveBspline.evaluateN(100);
 			
 			List<Vec2> list = new ArrayList<Vec2>();
 			for (Vec3 p : curveEval.getPoints())
@@ -359,7 +355,7 @@ public class ModelOverlay {
 				Vec2 its = surface.findRayIntersection(new Vec2(p.getX(),p.getY()), mvp);
 				list.add(its);
 			}		
-			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,6);
+			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,closestStartCurve.getbSplineHint());
 			Log.d(TAG+".add", c.getId().toString());
 			elements.add(c);
 			elements.remove(closestStartCurve);			
@@ -379,8 +375,8 @@ public class ModelOverlay {
 			}
 			
 			BSpline curveBspline = new BSpline();
-			curveBspline.approximate(new PolyLine(curve3D), 3, 15);
-			PolyLine curveEval = curveBspline.evaluateN(200);	
+			curveBspline.approximate(new PolyLine(curve3D), DEFAULT_P, DEFAULT_N);
+			PolyLine curveEval = curveBspline.evaluateN(100);	
 			
 			List<Vec2> list = new ArrayList<Vec2>();
 			for (Vec3 p : curveEval.getPoints())
@@ -388,7 +384,7 @@ public class ModelOverlay {
 				Vec2 its = surface.findRayIntersection(new Vec2(p.getX(),p.getY()), mvp);
 				list.add(its);
 			}		
-			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,6);
+			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,DEFAULT_N);
 			Log.d(TAG+".add", c.getId().toString());
 			elements.add(c);				
 		}
@@ -413,7 +409,7 @@ public class ModelOverlay {
 		List<Vec2> points= new ArrayList<Vec2>();
 		points.add(surface.findRayIntersection(a, mvp));
 		points.add(surface.findRayIntersection(b, mvp));
-		ModelCurve c = new ModelCurve(model, surface.getId(), points, null, null,6);
+		ModelCurve c = new ModelCurve(model, surface.getId(), points, null, null,DEFAULT_N);
 		elements.add(c);
 	}
 	

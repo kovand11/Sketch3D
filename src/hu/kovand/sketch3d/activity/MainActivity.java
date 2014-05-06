@@ -6,6 +6,7 @@ import hu.kovand.sketch3d.graphics.GLRenderer;
 import hu.kovand.sketch3d.graphics.Model3D;
 import hu.kovand.sketch3d.graphics.ModelOverlay;
 import hu.kovand.sketch3d.model.ModelCurve;
+import hu.kovand.sketch3d.model.ModelElement;
 import hu.kovand.sketch3d.model.ModelSurface;
 import hu.kovand.sketch3d.utility.StrokeHandler;
 
@@ -448,18 +449,38 @@ public class MainActivity extends Activity {
 		public boolean onDoubleTap(final MotionEvent e) {
 			final Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
 			final ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
+			final UUID id = model3D.getElementByScreenPosition(p, 2.0f, 2.0f, renderer.getMVP());
+			if (model3D.isSelected(id) && model3D.getElementById(id).getType() == ModelElement.TYPE_CURVE)
+			{
+				glSurfaceView.queueEvent(new Runnable() {
+					
+					@Override
+					public void run() {						
+						model3D.increaseBsplineHint(id);
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
+						//TODO make const
+						
+					}
+				});
+				
+			}
+			else
+			{
+				glSurfaceView.queueEvent(new Runnable() {				
+					@Override
+					public void run() {
+						modelOverlay.importSurface(model3D, s, model3D.exportActiveSurfaceAndDelete(), renderer.getMVP(), glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2);
+						modelOverlay.addPoint(p);
+						model3D.importActiveSurface( modelOverlay.exportSurface());
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_POINT_ADD);					
+					}
+				});
+				
+			}
 			
 			isModelChanged = true;
 			
-			glSurfaceView.queueEvent(new Runnable() {				
-				@Override
-				public void run() {
-					modelOverlay.importSurface(model3D, s, model3D.exportActiveSurfaceAndDelete(), renderer.getMVP(), glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2);
-					modelOverlay.addPoint(p);
-					model3D.importActiveSurface( modelOverlay.exportSurface());
-					model3D.refreshBuffer(Model3D.REFRESH_BUFFER_POINT_ADD);					
-				}
-			});
+			
 			return true;			
 		}
 		

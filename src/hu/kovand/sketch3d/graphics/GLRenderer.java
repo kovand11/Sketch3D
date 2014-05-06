@@ -35,7 +35,7 @@ public class GLRenderer implements Renderer {
     private static final String A_POSITION = "a_Position";
     private static final String U_MVPMATRIX = "u_MVPMatrix";
     
-    private static final float LINE_WIDTH = 5.0f; 
+    private static final float LINE_WIDTH = 6.0f; 
     
     private int uColorLocation = 0;
     private int aPositionLocation = 0;
@@ -57,7 +57,8 @@ public class GLRenderer implements Renderer {
     private static final float[] EXTRA_POINT_COLOR = { 0.1f ,0.6f ,0.1f ,0.9f};
     private static final float[] PASSIVE_POINT_COLOR = { 0.05f ,0.05f ,0.05f ,0.9f};
     private static final float[] PASSIVE_CURVE_COLOR = { 0.1f ,0.1f ,0.1f ,0.7f};
-    private static final float[] SURFACE_BORDER_COLOR = { 0.0f ,0.0f ,0.0f ,0.5f};
+    private static final float[] SURFACE_BORDER_COLOR = { 0.4f ,0.4f ,0.4f ,0.5f};
+    private static final float[] SURFACE_COLOR = {0.3f ,0.3f ,0.3f ,0.4f};
     private static final float[] KNOT_COLOR = {0.5f,0.5f,0.5f,1.0f};
     
     public static final int RENDERMODE_POINTS = 0;
@@ -191,11 +192,7 @@ public class GLRenderer implements Renderer {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT );
 		
 		FloatBuffer vertexData;
-		int size;
-		
-		List<FloatBuffer> vertexDataList;
-		List<Integer> sizeList;
-		
+		int size;	
 
 		//GesureHandler (special)
 		//
@@ -239,6 +236,18 @@ public class GLRenderer implements Renderer {
         //knots
         renderPointList(model3D.getKnotPointsVertexBufferList(), MVPMatrix, KNOT_COLOR);
         
+        //bounding box
+        
+        vertexData = model3D.getBoundingBoxBuffer();
+        vertexData.position(0);
+		GLES20.glEnableVertexAttribArray(aPositionLocation);
+        GLES20.glVertexAttribPointer(aPositionLocation, COORDS ,GLES20.GL_FLOAT, true, COORDS * BYTES_PER_FLOAT , vertexData);        
+        GLES20.glUniform4fv(uColorLocation, 1, SURFACE_BORDER_COLOR , 0);        
+        GLES20.glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVPMatrix, 0);        
+        GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 0, 4);
+        GLES20.glUniform4fv(uColorLocation, 1, SURFACE_COLOR , 0);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 6);
+        GLES20.glDisableVertexAttribArray(aPositionLocation); 
         
         
         
@@ -379,6 +388,7 @@ public class GLRenderer implements Renderer {
             GLES20.glDisableVertexAttribArray(aPositionLocation);        	
         }		
 	}
+	
 	
 	
 	
