@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import android.opengl.Matrix;
 import android.util.Log;
-import android.webkit.WebView.FindListener;
 
 import hu.kovand.sketch3d.geometry.BSpline;
 import hu.kovand.sketch3d.geometry.PolyLine;
@@ -28,8 +27,6 @@ public class ModelOverlay {
 	private static final float CURVE_TO_CURVE_MERGE = 100.0f;
 	private static final float CURVE_TO_CURVE_EXTEND = 200.0f;
 	
-	private static final int DEFAULT_P = 3;
-	private static final int DEFAULT_N = 7;
 	
 	
 	
@@ -288,8 +285,8 @@ public class ModelOverlay {
 				for (int i=0;i< closestStartCurveIndex ; i++){
 					newCurve.add(closestNorm.get(i));					
 				}
-				
-				if (lastToWeight == curve.size()-1){
+//TODO real fix				
+				if (lastToWeight > curve.size()-5){
 					for (int i=0; i<lastToWeight;i++)
 					{
 						float t = (1.0f*i)/(lastToWeight-1);
@@ -346,7 +343,7 @@ public class ModelOverlay {
 			}
 			
 			BSpline curveBspline = new BSpline();
-			curveBspline.approximate(new PolyLine(curve3D), DEFAULT_P, closestStartCurve.getbSplineHint());
+			curveBspline.approximate(new PolyLine(curve3D), Model3D.DEFAULT_BSPLINE_P, closestStartCurve.getbSplineHint());
 			PolyLine curveEval = curveBspline.evaluateN(100);
 			
 			List<Vec2> list = new ArrayList<Vec2>();
@@ -375,7 +372,7 @@ public class ModelOverlay {
 			}
 			
 			BSpline curveBspline = new BSpline();
-			curveBspline.approximate(new PolyLine(curve3D), DEFAULT_P, DEFAULT_N);
+			curveBspline.approximate(new PolyLine(curve3D), Model3D.DEFAULT_BSPLINE_P, Model3D.DEFAULT_BSPLINE_N);
 			PolyLine curveEval = curveBspline.evaluateN(100);	
 			
 			List<Vec2> list = new ArrayList<Vec2>();
@@ -384,7 +381,7 @@ public class ModelOverlay {
 				Vec2 its = surface.findRayIntersection(new Vec2(p.getX(),p.getY()), mvp);
 				list.add(its);
 			}		
-			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,DEFAULT_N);
+			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,Model3D.DEFAULT_BSPLINE_N);
 			Log.d(TAG+".add", c.getId().toString());
 			elements.add(c);				
 		}
@@ -398,10 +395,8 @@ public class ModelOverlay {
 	
 	void addDebugPoint(Vec2 addr)
 	{
-		ModelPoint p = new ModelPoint(model, surface.getId(), surface.findRayIntersection(addr, mvp));
-		
-		elements.add(p);
-		
+		ModelPoint p = new ModelPoint(model, surface.getId(), surface.findRayIntersection(addr, mvp));		
+		elements.add(p);		
 	}
 	
 	void addDebugLine(Vec2 a,Vec2 b)
@@ -409,7 +404,7 @@ public class ModelOverlay {
 		List<Vec2> points= new ArrayList<Vec2>();
 		points.add(surface.findRayIntersection(a, mvp));
 		points.add(surface.findRayIntersection(b, mvp));
-		ModelCurve c = new ModelCurve(model, surface.getId(), points, null, null,DEFAULT_N);
+		ModelCurve c = new ModelCurve(model, surface.getId(), points, null, null,Model3D.DEFAULT_BSPLINE_N);
 		elements.add(c);
 	}
 	

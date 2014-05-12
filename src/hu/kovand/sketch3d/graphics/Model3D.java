@@ -48,6 +48,10 @@ public class Model3D {
 	public static final int REFRESH_BUFFER_POINT_ADD = 3;
 	public static final int REFRESH_BUFFER_CURVE_ADD = 4;
 	
+	public static final int DEFAULT_BSPLINE_P = 3;
+	public static final int DEFAULT_BSPLINE_N = 7;
+	public static final int MIN_BSPLINE_N = 5;
+	
 	
 	
 	List<FloatBuffer> selectedPointsVertexBufferList;
@@ -82,11 +86,9 @@ public class Model3D {
 		elementList.add(base);
 		activeSurface = base.getId();
 		selectedList = new ArrayList<UUID>();
+
 		
-		//TMP
 		
-		knotPointsVertexBufferList = new ArrayList<FloatBuffer>();
-		bSplineKnots = new ArrayList<ModelPoint>();
 		
 		refreshBuffer(REFRESH_BUFFER_ALL);
 	}
@@ -304,21 +306,12 @@ public class Model3D {
 	
 	public void refreshKnotPointsVertexBufferList()
 	{
-		int countCurves = 0;
-		ModelCurve curve = null;
-		for (UUID id : selectedList)
-		{
-			ModelElement elem = getElementById(id);
-			if (elem.getType() == ModelElement.TYPE_CURVE){
-				countCurves++;
-				curve = (ModelCurve)elem;		
-			}
-		}
+		bSplineKnots = new ArrayList<ModelPoint>();		
+		UUID curveId = getEditCurve();
 		
-		bSplineKnots.clear();
-		
-		if (countCurves == 1)
+		if (curveId != null)
 		{
+			ModelCurve curve = (ModelCurve)getElementById(curveId);
 			PolyLine pl = new PolyLine(MyMath.listAddZ(curve.getPoints(), 0.0f));
 			BSpline bs = new BSpline();
 			bs.approximate(pl, 3, curve.getbSplineHint());
@@ -829,16 +822,100 @@ public class Model3D {
 		}
 		return arr;
 	}
-	
+	/**
+	 * Increases B-spline degree of freedom (not thread safe with render)
+	 * @param curveId
+	 */
 	public void increaseBsplineHint(UUID curveId)
 	{
 		ModelCurve curve = (ModelCurve)getElementById(curveId);
-		curve.setbSplineHint(curve.getbSplineHint()+1);		
+		elementList.remove(curve);
+		elementList.add(new ModelCurve(curve,curve.getPoints(), curve.getbSplineHint()+1));
 	}
 	
+	/**
+	 * Decreases B-spline degree of freedom (not thread safe with render)
+	 * @param curveId
+	 */	
+	public void decreaseBsplineHint(UUID curveId)
+	{
+		ModelCurve curve = (ModelCurve)getElementById(curveId);
+		int n = curve.getbSplineHint();
+		if (n>MIN_BSPLINE_N)
+		{
+			BSpline bspline = new BSpline();
+			bspline.approximate(new PolyLine(curve.getPoints(),0.0f), DEFAULT_BSPLINE_P, n-1);
+			PolyLine pl = bspline.evaluateN(100);
+			ModelCurve newCurve = new ModelCurve(curve,pl.getPointsIgnoreZ(),n-1);
+			elementList.remove(curve);
+			elementList.add(newCurve);
+		}
+		
+		
+	}
 	
+	public UUID getEditPoint()
+	{
+		int countPoints = 0;
+		UUID point = null;
+		for (UUID id : selectedList)
+		{
+			ModelElement elem = getElementById(id);
+			if (elem.getType() == ModelElement.TYPE_POINT){
+				countPoints++;
+				point = id;		
+			}
+		}
+		
+		if (countPoints == 1){
+			return point;
+		}
+		else return null;
+	}
 	
+	public UUID getEditCurve()
+	{
+		/*int countCurves = 0;
+		UUID curve = null;
+		for (UUID id : selectedList)
+		{
+			ModelElement elem = getElementById(id);
+			if (elem.getType() == ModelElement.TYPE_CURVE){
+				countCurves++;
+				curve = id;		
+			}
+		}
+		
+		if (countCurves == 1){
+			return curve;
+		}
+		else return null;*/
+		
+		if (selectedList.size() == 1)
+		{
+			UUID id= selectedList.get(0);
+			if (getElementById(id).getType() == ModelElement.TYPE_CURVE){
+				return id;
+			}				
+		}
+		return null;
+
+	}
 	
+	/**
+	 * UNSAFE
+	 * @param id
+	 */
+	public void removePoint(UUID id)
+	{
+		
+	}
+	
+	public void removeCurve(UUID id)
+	{
+		selectedList.remove(id);
+		elementList.remove(getElementById(id));
+	}
 	
 	
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import android.os.Parcel;
 
 import hu.kovand.sketch3d.geometry.Vec2;
 import hu.kovand.sketch3d.geometry.Vec3;

@@ -19,6 +19,14 @@ public class PolyLine {
 		points = ps;
 	}	
 	
+	public PolyLine(List<Vec2> ps,float defaultZ)
+	{
+		points = new ArrayList<Vec3>();
+		for (Vec2 v : ps){
+			points.add(new Vec3(v.getX(),v.getY(),defaultZ));
+		}		
+	}
+	
 	public void add(Vec3 p){
 		points.add(p);
 	}
@@ -37,6 +45,16 @@ public class PolyLine {
 	
 	public List<Vec3> getPoints(){
 		return points;
+	}
+	
+	public List<Vec2> getPointsIgnoreZ()
+	{
+		List<Vec2> list = new ArrayList<Vec2>();
+		for (Vec3 v : points)
+		{
+			list.add(v.ignoreZ());
+		}
+		return list;		
 	}
 	
 	public int size(){

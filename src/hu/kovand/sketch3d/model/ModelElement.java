@@ -5,7 +5,6 @@ import hu.kovand.sketch3d.graphics.Model3D;
 import java.io.Serializable;
 import java.util.UUID;
 
-import android.R.string;
 
 abstract public class ModelElement {
 	

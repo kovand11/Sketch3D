@@ -35,7 +35,7 @@ public class GLRenderer implements Renderer {
     private static final String A_POSITION = "a_Position";
     private static final String U_MVPMATRIX = "u_MVPMatrix";
     
-    private static final float LINE_WIDTH = 6.0f; 
+    private static final float LINE_WIDTH = 5.0f; 
     
     private int uColorLocation = 0;
     private int aPositionLocation = 0;

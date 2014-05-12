@@ -5,7 +5,6 @@ import hu.kovand.sketch3d.geometry.Vec2;
 import hu.kovand.sketch3d.graphics.GLRenderer;
 import hu.kovand.sketch3d.graphics.Model3D;
 import hu.kovand.sketch3d.graphics.ModelOverlay;
-import hu.kovand.sketch3d.model.ModelCurve;
 import hu.kovand.sketch3d.model.ModelElement;
 import hu.kovand.sketch3d.model.ModelSurface;
 import hu.kovand.sketch3d.utility.StrokeHandler;
@@ -21,7 +20,6 @@ import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -173,7 +171,7 @@ public class MainActivity extends Activity {
 			
 		
 			
-		case R.id.action_undo:			
+		case R.id.action_revert:			
 			if (isModelChanged)
 			{
 				if (model3DList.size()>=1)
@@ -209,16 +207,85 @@ public class MainActivity extends Activity {
 			}				
 			break;
 			
-		case R.id.action_cancel:
-			Toast.makeText(context, "Cancel",Toast.LENGTH_SHORT).show();
+		case R.id.action_undo:
+			//TODO
 			break;
+			
+		case R.id.action_copy:
+			//TODO
+			break;
+			
+		case R.id.action_delete:
+			final UUID curveIdDel = model3D.getEditCurve();
+			if (curveIdDel != null)
+			{
+				glSurfaceView.queueEvent(new Runnable() {					
+				@Override
+					public void run() {						
+						model3D.removeCurve(curveIdDel);
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
+						//TODO make const
+					}
+				});
+			}
+			
+			final UUID pointIdDel = model3D.getEditPoint();
+			if (pointIdDel != null)
+			{
+				glSurfaceView.queueEvent(new Runnable() {					
+				@Override
+					public void run() {						
+						model3D.removeCurve(pointIdDel);
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
+						//TODO make const
+					}
+				});
+			}
+			
+			break;
+			
+		case R.id.action_back:
+			//decrease bspline n
+			final UUID curveIdDec = model3D.getEditCurve();
+			if (curveIdDec != null)
+			{
+					glSurfaceView.queueEvent(new Runnable() {					
+					@Override
+					public void run() {						
+						model3D.decreaseBsplineHint(curveIdDec);
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
+						//TODO make const						
+					}
+				});
+				
+			}
+			break;
+			
+		case R.id.action_forward:
+			//inscrease bspline n
+			final UUID curveIdInc = model3D.getEditCurve();
+			if (curveIdInc != null)
+			{
+					glSurfaceView.queueEvent(new Runnable() {					
+					@Override
+					public void run() {						
+						model3D.increaseBsplineHint(curveIdInc);
+						model3D.refreshBuffer(Model3D.REFRESH_BUFFER_ALL);
+						//TODO make const						
+					}
+				});
+				
+			}
+			break;		
+
 			
 		case R.id.action_save:
 			Toast.makeText(context, "Save",Toast.LENGTH_SHORT).show();
 			break;
 			
 		case R.id.action_settings:
-			openSettingsActivity();
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
 			break;
 			
 		default:
@@ -229,11 +296,6 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	void openSettingsActivity()
-	{
-		Intent intent = new Intent(this, SettingsActivity.class);
-		startActivity(intent);		
-	}
 
 	View.OnTouchListener onTouchListener = new View.OnTouchListener() {
 		
@@ -449,8 +511,20 @@ public class MainActivity extends Activity {
 		public boolean onDoubleTap(final MotionEvent e) {
 			final Vec2 p = new Vec2(e.getX()/glSurfaceView.getWidth()*2.0f-1.0f, 1.0f-e.getY()/glSurfaceView.getHeight()*2.0f);
 			final ModelSurface s = (ModelSurface)model3D.getElementById(model3D.getActiveSurface());
-			final UUID id = model3D.getElementByScreenPosition(p, 2.0f, 2.0f, renderer.getMVP());
-			if (model3D.isSelected(id) && model3D.getElementById(id).getType() == ModelElement.TYPE_CURVE)
+			final UUID id = model3D.getElementByScreenPosition(p,glSurfaceView.getWidth()/2, glSurfaceView.getHeight()/2, renderer.getMVP());
+	
+			
+			boolean toKnotIncrease = false;
+			
+			if (id != null)
+			{
+				if (model3D.isSelected(id) && model3D.getElementById(id).getType() == ModelElement.TYPE_CURVE)
+				{
+					toKnotIncrease = true;
+				}
+			}
+			
+			if (toKnotIncrease)
 			{
 				glSurfaceView.queueEvent(new Runnable() {
 					

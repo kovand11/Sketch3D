@@ -6,7 +6,6 @@ import hu.kovand.sketch3d.geometry.Vec2;
 import hu.kovand.sketch3d.geometry.Vec3;
 import hu.kovand.sketch3d.graphics.Model3D;
 
-import android.os.Parcel;
 
 
 

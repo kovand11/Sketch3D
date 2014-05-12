@@ -25,6 +25,15 @@ public class ModelCurve extends ModelElement {
 	
 	
 
+	/**
+	 * Main constuctor
+	 * @param m
+	 * @param parent
+	 * @param points
+	 * @param startPoint
+	 * @param endPoint
+	 * @param bSplineHint
+	 */
 	public ModelCurve(Model3D m,UUID parent,List<Vec2> points,UUID startPoint,UUID endPoint,int bSplineHint) {
 		super(m);
 		this.parent = parent;
@@ -34,13 +43,35 @@ public class ModelCurve extends ModelElement {
 		this.bSplineHint = bSplineHint;
 	}
 	
+	/**
+	 * Copy constructor with startpoint, endpoint change
+	 * @param c
+	 * @param startPoint
+	 * @param endPoint
+	 */
 	public ModelCurve(ModelCurve c,UUID startPoint,UUID endPoint)
 	{
 		super(c.getModel(),c.getId());
 		parent = c.getParent();
 		points = c.getPoints();
+		bSplineHint = c.getbSplineHint();
 		attachedToStart = startPoint;
 		attachedToEnd = endPoint;
+	}
+	
+	/**
+	 * Copy constructor with bSplineHint change and pointList change
+	 * @param c
+	 * @param newBSplineHint
+	 */
+	public ModelCurve(ModelCurve c,List<Vec2> points,int newBSplineHint)
+	{
+		super(c.getModel(),c.getId());
+		parent = c.getParent();
+		this.points = points;
+		attachedToStart = c.getAttachedToStart();
+		attachedToEnd = getAttachedToEnd();
+		bSplineHint = newBSplineHint;		
 	}
 	
 	
@@ -96,8 +127,13 @@ public class ModelCurve extends ModelElement {
 		return bSplineHint;
 	}
 	
-	public void setbSplineHint(int bSplineHint) {
-		this.bSplineHint = bSplineHint;
+	
+	public UUID getAttachedToStart() {
+		return attachedToStart;
+	}
+	
+	public UUID getAttachedToEnd() {
+		return attachedToEnd;
 	}
 	
 
