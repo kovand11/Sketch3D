@@ -19,18 +19,12 @@ import hu.kovand.sketch3d.model.ModelSurface;
 import hu.kovand.sketch3d.utility.MyMath;
 
 public class ModelOverlay {
-	public static final String TAG = "ModelOverlay";
-	
+	public static final String TAG = "ModelOverlay";	
 	
 	private static final float POINT_TO_CURVE_MERGE_RANGE = 50.0f; //pixel
 	private static final float CURVE_TO_POINT_MERGE_RANGE = 35.0f; 
-	private static final float CURVE_TO_CURVE_MERGE = 100.0f;
-	private static final float CURVE_TO_CURVE_EXTEND = 200.0f;
-	
-	
-	
-	
-	
+	private static final float CURVE_TO_CURVE_MERGE = 75.0f;
+	private static final float CURVE_TO_CURVE_EXTEND = 100.0f;	
 	
 	private List<ModelElement> elements;
 	Model3D model;
@@ -280,24 +274,29 @@ public class ModelOverlay {
 			List<Vec2> newCurve = new ArrayList<Vec2>();
 			
 			
-			if (closestEndCurveIndex > closestStartCurveIndex)
+			if (closestIndex.get(lastToWeight) > closestIndex.get(0))
 			{
 				for (int i=0;i< closestStartCurveIndex ; i++){
 					newCurve.add(closestNorm.get(i));					
-				}
-//TODO real fix				
-				if (lastToWeight > curve.size()-5){
+				}			
+				if (lastToWeight == curve.size()-1){
+					
+					Log.d(TAG+".type", "paralel oversketch");
+					
 					for (int i=0; i<lastToWeight;i++)
 					{
 						float t = (1.0f*i)/(lastToWeight-1);
 						newCurve.add(Vec2.weightedAdd(curve.get(i), MyMath.weightFunction(t, 0.0f, 0.8f, 0.0f), closestNorm.get(closestIndex.get(i)), 1-MyMath.weightFunction(t, 0.0f, 0.8f, 0.0f)));				
 					}
+					Log.d(TAG+".ind", Integer.toString(closestEndCurveIndex)+" "+Integer.toString(closestNorm.size()));
 					for (int i = closestEndCurveIndex+1; i<closestNorm.size();i++){
 						newCurve.add(closestNorm.get(i));						
 					}
 				}
 				else
 				{
+					Log.d(TAG+".type", "paralel extend");
+					
 					for (int i=0; i<lastToWeight;i++){
 						float t = (1.0f*i)/(lastToWeight-1);
 						newCurve.add(Vec2.weightedAdd(curve.get(i), MyMath.weightFunction(t, 0.0f, 0.5f, 1.0f), closestNorm.get(closestIndex.get(i)), 1.0f-MyMath.weightFunction(t, 0.0f, 0.5f, 1.0f)));				
@@ -319,7 +318,7 @@ public class ModelOverlay {
 						float t = (1.0f*i)/(lastToWeight-1);
 						newCurve.add(Vec2.weightedAdd(curve.get(i), MyMath.weightFunction(t, 0.0f, 0.8f, 0.0f), closestNorm.get(closestIndex.get(i)), 1-MyMath.weightFunction(t, 0.0f, 0.8f, 0.0f)));				
 					}
-					for (int i = closestEndCurveIndex-1; i>=0;i--){
+					for (int i = closestStartCurveIndex-1; i>=0;i--){
 						newCurve.add(closestNorm.get(i));						
 					}
 				}
@@ -352,10 +351,17 @@ public class ModelOverlay {
 				Vec2 its = surface.findRayIntersection(new Vec2(p.getX(),p.getY()), mvp);
 				list.add(its);
 			}		
-			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,closestStartCurve.getbSplineHint());
-			Log.d(TAG+".add", c.getId().toString());
+			ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,closestStartCurve.getbSplineHint(),closestStartCurve.getId());
+			//ModelCurve c = new ModelCurve(model, surface.getId(), list,null,null,closestStartCurve.getbSplineHint());
 			elements.add(c);
-			elements.remove(closestStartCurve);			
+			elements.remove(closestStartCurve);
+			/*List<Vec2> curveOnSurface = new ArrayList<Vec2>(); 
+			for (Vec2 v : curve)
+			{
+				curveOnSurface.add(surface.findRayIntersection(v, mvp));				
+			}
+			elements.add(new ModelCurve(model, surface.getId(), curveOnSurface,null,null,Model3D.DEFAULT_BSPLINE_N));*/
+			
 			
 			
 		}

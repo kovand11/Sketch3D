@@ -1,9 +1,6 @@
 package hu.kovand.sketch3d.graphics;
 
 import hu.kovand.sketch3d.R;
-import hu.kovand.sketch3d.geometry.PolyLine;
-import hu.kovand.sketch3d.geometry.PolyLineRenderable;
-import hu.kovand.sketch3d.geometry.Vec3;
 import hu.kovand.sketch3d.geometry.Vec3Renderable;
 import hu.kovand.sketch3d.geometry.Vec4;
 import hu.kovand.sketch3d.utility.Constants;
@@ -13,7 +10,6 @@ import hu.kovand.sketch3d.utility.TextResourceReader;
 
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,7 +20,6 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
-import android.util.Log;
 
 
 public class GLRenderer implements Renderer {	

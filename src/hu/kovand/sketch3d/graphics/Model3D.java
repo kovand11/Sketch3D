@@ -706,7 +706,9 @@ public class Model3D {
 			refreshKnotPointsVertexBufferList();
 		}
 		else if (mode == REFRESH_BUFFER_CURVE_ADD){
-			refreshActiveCurvesVertexBufferAndSizeList();			
+			refreshActiveCurvesVertexBufferAndSizeList();
+			refreshSelectedCurvesVertexBufferAndSizeList();
+			refreshKnotPointsVertexBufferList();
 		}
 		
 		refreshBoundingBoxBuffer();

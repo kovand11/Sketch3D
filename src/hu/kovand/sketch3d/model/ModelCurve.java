@@ -43,6 +43,15 @@ public class ModelCurve extends ModelElement {
 		this.bSplineHint = bSplineHint;
 	}
 	
+	public ModelCurve(Model3D m,UUID parent,List<Vec2> points,UUID startPoint,UUID endPoint,int bSplineHint,UUID id) {
+		super(m,id);
+		this.parent = parent;
+		this.points = points;
+		attachedToStart = startPoint;
+		attachedToEnd = endPoint;
+		this.bSplineHint = bSplineHint;
+	}
+	
 	/**
 	 * Copy constructor with startpoint, endpoint change
 	 * @param c

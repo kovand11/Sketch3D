@@ -40,12 +40,10 @@ abstract public class ModelSurfaceWithOrigAndTwoBase extends ModelSurface {
 		p2[3] = 1.0f;
 		
 		
-		Log.d("map.mvp", GLRenderer.matToString(mvp));
 		
 		float[] invmvp = new float[16];
 		Matrix.invertM(invmvp, 0, mvp, 0);
 		
-		Log.d("map.invmvp", GLRenderer.matToString(invmvp));
 		
 		float[] p1tr = new float[4];
 		Matrix.multiplyMV(p1tr, 0, invmvp, 0, p1, 0);
@@ -54,7 +52,6 @@ abstract public class ModelSurfaceWithOrigAndTwoBase extends ModelSurface {
 		float[] p1trp2trdiff = Vec4.subtractAsNorm(new Vec4(p2tr),new Vec4(p1tr)).toArray();
 		
 		
-		Log.d("map.diff", Vec4.subtractAsNorm(new Vec4(p1tr),new Vec4(p2tr)).toString());
 
 		Vec3 v1 = getBaseVec1();
 		Vec3 v2 = getBaseVec2();
